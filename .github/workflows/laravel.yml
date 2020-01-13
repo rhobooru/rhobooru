@@ -8,6 +8,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
         
+    - name: Fix permissions
+      run: |
+        sudo chmod -R 666 storage
+        sudo chmod -R 777 bootstrap storage/framework/cache storage/logs
+        
     - name: test4
       run: ls -al .
         
