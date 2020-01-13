@@ -18,7 +18,10 @@ jobs:
       run: ls -al storage
       
     - name: test2
-      run: ls -al storage/cache
+      run: ls -al storage/framework
+      
+    - name: test3
+      run: ls -al storage/framework/cache
       
     - name: Install dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
