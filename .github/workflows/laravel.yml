@@ -14,7 +14,7 @@ jobs:
         
     - name: test
       run: |
-        php -r "file_put_contents('testFile', 'test');echo fileowner('testFile');unlink('testFile');"
+        php -r "echo exec('whoami');"
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
