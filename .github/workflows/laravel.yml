@@ -23,7 +23,6 @@ jobs:
     - name: Fix permissions
       run: |
         sudo chmod -R 775 storage bootstrap
-        sudo chmod 600 storage/oauth*
       
     - name: Generate key
       run: php artisan key:generate
@@ -34,9 +33,6 @@ jobs:
         touch database/database.sqlite
         
     - name: Run migrations
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
       run: php artisan migrate
       
     - name: Install Passport
@@ -45,7 +41,4 @@ jobs:
         php artisan passport:install
         
     - name: Execute tests
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
       run: vendor/bin/phpunit
