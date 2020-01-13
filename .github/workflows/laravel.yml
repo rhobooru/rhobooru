@@ -10,8 +10,7 @@ jobs:
         
     - name: Fix permissions
       run: |
-        sudo chmod -R ugo+rwx .
-        sudo chown root:docker storage
+        sudo chmod 600 storage
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
@@ -21,6 +20,10 @@ jobs:
       
     - name: Generate key
       run: php artisan key:generate
+        
+    - name: Fix permissions again
+      run: |
+        sudo chmod -R ugo+rwx .
         
     - name: Run migrations
       run: php artisan migrate
