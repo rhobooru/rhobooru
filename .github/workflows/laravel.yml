@@ -10,13 +10,11 @@ jobs:
         
     - name: Fix permissions
       run: |
-        chmod -R ugo+rw storage bootstrap
+        sudo chmod -R ugo+rwx .
         
-    - name: test4
-      run: ls -al .
-        
-    - name: test3
-      run: ls -al storage
+    - name: test
+      run: |
+        php -r "file_put_contents('testFile', 'test');echo fileowner('testFile');unlink('testFile');"
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
