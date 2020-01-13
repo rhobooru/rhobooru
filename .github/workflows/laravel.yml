@@ -26,8 +26,8 @@ jobs:
         
     - name: Fix permissions
       run: |
-        sudo chmod -R 600 storage 
-        sudo chmod -R 777 bootstrap storage/framework/cache storage/logs
+        sudo chmod 666 storage -R
+        sudo chmod 777 bootstrap storage/framework/cache storage/logs -R
       
     - name: Generate key
       run: php artisan key:generate
