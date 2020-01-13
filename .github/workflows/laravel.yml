@@ -1,15 +1,16 @@
 name: Laravel
 
-#on: [push]
+on: [push]
 
 jobs:
   laravel-tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-      
-    - name: Fix permissions
-      run: chmod 660 storage
+
+    - name: make keys
+      run: openssl genrsa -out storage/oauth-private.key 4096
+      run: openssl rsa -in storage/oauth-private.key -pubout > storage/oauth-public.key
       
     - name: Install dependencies
       run: composer install -n --prefer-dist
@@ -24,9 +25,7 @@ jobs:
       run: php artisan migrate
       
     - name: Install Passport
-      run: |
-        php artisan passport:keys
-        php artisan passport:install
+      run: php artisan passport:install
       
     - name: Clear caches
       run: |
