@@ -21,7 +21,9 @@ jobs:
         mkdir -p storage/framework/cache/data
         
     - name: Fix permissions
-      run: sudo chmod -R 775 storage bootstrap
+      run: |
+        sudo chmod -R 775 storage bootstrap
+        sudo chmod 600 storage/oauth*
       
     - name: Generate key
       run: php artisan key:generate
