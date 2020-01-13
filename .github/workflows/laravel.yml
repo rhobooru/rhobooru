@@ -13,11 +13,8 @@ jobs:
       
     - name: Fix permissions
       run: |
-        su root
-        touch storage/logs/test.txt
-        touch storage/framework/cache/data/test.txt
-        sudo chmod 660 storage
-        sudo chmod -R 777 storage/logs storage/framework/cache bootstrap/cache
+        chmod 660 storage
+        chmod -R 777 storage/logs storage/framework/cache bootstrap/cache
         touch storage/logs/test2.txt
         touch storage/framework/cache/data/test2.txt
       
