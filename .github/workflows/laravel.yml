@@ -22,18 +22,5 @@ jobs:
     - name: Generate application key
       run: php artisan key:generate
         
-    - name: Run migrations
-      run: php artisan migrate
-      
-    - name: Install Passport
-      run: php artisan passport:install
-      
-    - name: Clear caches
-      run: |
-        php artisan cache:clear
-        php artisan config:clear
-        php artisan view:clear
-        composer dump-autoload
-        
     - name: Execute tests
       run: vendor/bin/phpunit
