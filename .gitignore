@@ -15,3 +15,5 @@ yarn-error.log
 .vscode
 test_coverage
 clover.xml
+composer.lock
+package-lock.json
