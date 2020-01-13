@@ -24,6 +24,7 @@ jobs:
     - name: Fix permissions again
       run: |
         sudo chmod -R ugo+rwx .
+        sudo chmod 600 storage/oauth*
         
     - name: Run migrations
       run: php artisan migrate
