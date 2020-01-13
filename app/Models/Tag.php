@@ -165,14 +165,14 @@ class Tag extends Model
                     AND 
                         new.record_id IS NULL
             */
-            $affected = \DB::table('record_tag AS old')
+            $affected = \DB::table('record_tag')
                 ->leftJoin('record_tag AS new', function ($join) use ($tag_being_aliased) {
                     $join->where('new.tag_id', '=', $tag_being_aliased->aliased_to_tag_id)
-                    ->on('new.record_id', '=', 'old.record_id');
+                    ->on('new.record_id', '=', 'record_tag.record_id');
                 })
-                ->where('old.tag_id', '=', $tag_being_aliased->id)
+                ->where('record_tag.tag_id', '=', $tag_being_aliased->id)
                 ->whereNull('new.record_id')
-                ->update(['old.tag_id' => $tag_being_aliased->aliased_to_tag_id]);
+                ->update(['record_tag.tag_id' => $tag_being_aliased->aliased_to_tag_id]);
                 
 
 

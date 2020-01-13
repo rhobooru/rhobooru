@@ -6,15 +6,6 @@ jobs:
   laravel-tests:
     runs-on: ubuntu-latest
 
-    services:
-      db:
-        image: mariadb:10.4
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: rhobooru_testing
-        ports:
-          - 3306
-
     steps:
     - uses: actions/checkout@v1
 
@@ -31,19 +22,6 @@ jobs:
       
     - name: Generate application key
       run: php artisan key:generate
-        
-    - name: Run migrations
-      run: php artisan migrate
-      
-    - name: Install Passport
-      run: php artisan passport:install --force
-      
-    - name: Clear caches
-      run: |
-        php artisan cache:clear
-        php artisan config:clear
-        php artisan view:clear
-        composer dump-autoload
         
     - name: Execute tests
       run: vendor/bin/phpunit
