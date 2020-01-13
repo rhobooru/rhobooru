@@ -24,7 +24,7 @@ jobs:
         
     - name: Fix permissions
       run: |
-        sudo chmod -R 775 bootstrap logs
+        sudo chmod -R 775 bootstrap storage/logs
         sudo chmod -R 600 storage
       
     - name: Generate key
