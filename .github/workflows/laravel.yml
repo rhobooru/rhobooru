@@ -21,6 +21,7 @@ jobs:
         mkdir -p storage/framework/cache
         mkdir -p storage/framework/cache/data
         mkdir -p storage/logs
+        mkdir -p bootstrap/cache
         
     - name: Fix permissions
       run: |
@@ -42,6 +43,13 @@ jobs:
       run: |
         php artisan passport:keys
         php artisan passport:install
+      
+    - name: Clear caches
+      run: |
+        php artisan cache:clear
+        php artisan config:clear
+        php artisan view:clear
+        composer dump-autoload
         
     - name: Execute tests
       run: vendor/bin/phpunit
