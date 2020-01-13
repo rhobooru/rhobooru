@@ -7,24 +7,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-        
-    - name: Fix permissions
-      run: |
-        sudo chmod 600 storage
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
+      
+    - name: test
+      run: ls -al .
+      
+    - name: test
+      run: ls -al storage
+      
+    - name: test2
+      run: ls -al storage/cache
       
     - name: Install dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       
     - name: Generate key
       run: php artisan key:generate
-        
-    - name: Fix permissions again
-      run: |
-        sudo chmod -R ugo+rwx .
-        sudo chmod 600 storage/oauth*
         
     - name: Run migrations
       run: php artisan migrate
