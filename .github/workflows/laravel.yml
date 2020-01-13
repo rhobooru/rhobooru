@@ -8,14 +8,14 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
-      
     - name: Fix permissions
-      run: sudo chmod 660 storage
+      run: chmod 660 storage
       
     - name: Install dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+      run: composer install -n --prefer-dist
+      
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       
     - name: Generate key
       run: php artisan key:generate
