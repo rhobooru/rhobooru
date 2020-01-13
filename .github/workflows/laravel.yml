@@ -13,10 +13,12 @@ jobs:
       
     - name: Fix permissions
       run: |
-        sudo chmod 660 storage
-        sudo chmod -R 777 storage/logs storage/framework/cache bootstrap/cache
-        touch storage/logs/test.txt
-        touch storage/framework/cache/data/test.txt
+        pwd
+        ls -al
+        sudo chmod 660 /home/runner/work/rhobooru/rhobooru/storage
+        sudo chmod -R 777 /home/runner/work/rhobooru/rhobooru/storage/logs /home/runner/work/rhobooru/rhobooru/storage/framework/cache /home/runner/work/rhobooru/rhobooru/bootstrap/cache
+        touch /home/runner/work/rhobooru/rhobooru/storage/logs/test.txt
+        touch /home/runner/work/rhobooru/rhobooru/storage/framework/cache/data/test.txt
       
     - name: Install dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
