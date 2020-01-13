@@ -7,28 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-      
-    - name: Create folders
-      run: |
-        mkdir -p storage/framework/sessions
-        mkdir -p storage/framework/views
-        mkdir -p storage/framework/cache
-        mkdir -p storage/framework/cache/data
-        mkdir -p storage/logs
-        mkdir -p storage/app
-        mkdir -p bootstrap/cache
-        
-    - name: Fix permissions
-      run: |
-        sudo chmod -R 666 storage
-        sudo chmod -R 777 bootstrap storage/framework/cache storage/logs
-        sudo chown -R runner:docker .
-        
-    - name: test
-      run: pwd
-        
-    - name: test2
-      run: whoami
         
     - name: test4
       run: ls -al .
