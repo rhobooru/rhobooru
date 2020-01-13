@@ -15,8 +15,8 @@ jobs:
       run: |
         chmod 660 storage
         chmod -R 777 storage/logs storage/framework/cache bootstrap/cache
-        touch storage/logs/test2.txt
-        touch storage/framework/cache/data/test2.txt
+        sudo touch storage/logs/test2.txt
+        sudo touch storage/framework/cache/data/test2.txt
       
     - name: Install dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
@@ -40,4 +40,4 @@ jobs:
         composer dump-autoload
         
     - name: Execute tests
-      run: vendor/bin/phpunit
+      run: sudo vendor/bin/phpunit
