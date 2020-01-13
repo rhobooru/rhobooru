@@ -11,10 +11,7 @@ jobs:
     - name: Fix permissions
       run: |
         sudo chmod -R ugo+rwx .
-        
-    - name: test
-      run: |
-        php -r "echo exec('whoami');"
+        sudo chown root:docker storage
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
