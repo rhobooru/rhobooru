@@ -1,0 +1,13 @@
+name: Laravel
+
+on: [push]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      
+    - name: test
+      run: |
+        touch storage/logs/test.txt
