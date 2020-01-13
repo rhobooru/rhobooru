@@ -10,7 +10,8 @@ jobs:
       db:
         image: mariadb:10.4
         env:
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_USER: rhobooru
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: rhobooru_testing
         ports:
           - 3306
