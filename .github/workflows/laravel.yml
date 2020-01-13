@@ -20,8 +20,9 @@ jobs:
         
     - name: Fix permissions
       run: |
-        sudo chmod 666 storage -R
-        sudo chmod 777 bootstrap storage/framework/cache storage/logs -R
+        sudo chmod -R 666 storage
+        sudo chmod -R 777 bootstrap storage/framework/cache storage/logs
+        sudo chown -R runner:docker .
         
     - name: test
       run: pwd
