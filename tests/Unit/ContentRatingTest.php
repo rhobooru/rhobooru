@@ -6,12 +6,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\Data;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Tests\SeedsDefaultValues;
 use \App\Models\ContentRating;
 
 class ContentRatingTest extends TestCase
 {
-    use RefreshDatabase, SeedsDefaultValues;
+    use RefreshDatabase;
 
     /**
      * ContentRatings must be able to find their related Records.
@@ -21,9 +20,11 @@ class ContentRatingTest extends TestCase
      */
     public function content_rating_can_find_records()
     {
+        $this->seed(\DefaultValuesSeeder::class);
+
         $content_rating = factory(\App\Models\ContentRating::class)->create();
 
-        $record = factory(\App\Models\Record::class)->create([
+        $record = factory(\App\Models\Record::class)->states('approved')->create([
             'content_rating_id' => $content_rating->id,
         ]);
 
@@ -75,9 +76,6 @@ class ContentRatingTest extends TestCase
      */
     public function can_find_public_ratings()
     {
-        // Make sure we don't have extra data lying around in the table.
-        $this->artisan('migrate:refresh');
-
         $public_inserted = factory(ContentRating::class, 6)->create(['available_to_anonymous' => true])->pluck('id')->toArray();
         factory(ContentRating::class, 3)->create(['available_to_anonymous' => false]);
 

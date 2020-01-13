@@ -37,6 +37,7 @@ $factory->define(Record::class, function (Faker $faker) {
         'content_rating_id' => $defaultContentRatingId ?? factory(\App\Models\ContentRating::class)->create()->id,
         'created_by_user_id' => $firstUserId ?? factory(\App\Models\User::class)->create()->id,
         'updated_by_user_id' => $firstUserId ?? factory(\App\Models\User::class)->create()->id,
+        'upload_complete' => true,
     ];
 });
 

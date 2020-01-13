@@ -92,7 +92,6 @@ class User extends Authenticatable
     public function favoritesFolder()
     {
         return $this->hasOne('App\Models\Folder', 'created_by_user_id')->favorites();
-        //return $this->folders()->favorites();
     }
 
     /**
@@ -100,7 +99,7 @@ class User extends Authenticatable
      */
     public function quickListFolder()
     {
-        return $this->folders()->quickList()->first();
+        return $this->hasOne('App\Models\Folder', 'created_by_user_id')->quickList();
     }
 
     /**

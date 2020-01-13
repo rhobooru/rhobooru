@@ -26,7 +26,7 @@ class RecordTest extends TestCase
     {
         $content_rating = factory(ContentRating::class)->create();
         
-        $record = factory(Record::class)->create([
+        $record = factory(Record::class)->states('approved')->create([
             'content_rating_id' => $content_rating->id,
         ]);
 
@@ -43,7 +43,7 @@ class RecordTest extends TestCase
     {
         $record_type = factory(RecordType::class)->create();
 
-        $record = factory(Record::class)->create([
+        $record = factory(Record::class)->states('approved')->create([
             'record_type_id' => $record_type->id,
         ]);
 
@@ -93,7 +93,7 @@ class RecordTest extends TestCase
      */
     public function records_can_find_their_tags()
     {
-        $record = factory(Record::class)->create();
+        $record = factory(Record::class)->states('approved')->create();
         $tag = factory(Tag::class)->create();
 
         $this->assertEquals(0, $record->tags()->count());
@@ -112,7 +112,7 @@ class RecordTest extends TestCase
      */
     public function adding_tag_should_increment_cached_field()
     {
-        $record = factory(Record::class)->create();
+        $record = factory(Record::class)->states('approved')->create();
         $tag = factory(Tag::class)->create();
 
         $this->assertEquals(0, $record->cache_tag_count);
@@ -131,7 +131,7 @@ class RecordTest extends TestCase
      */
     public function removing_tag_should_decrement_cached_field()
     {
-        $record = factory(Record::class)->create();
+        $record = factory(Record::class)->states('approved')->create();
         $tag = factory(Tag::class)->create();
 
         $record->tags()->save($tag);
@@ -154,7 +154,7 @@ class RecordTest extends TestCase
         $user = factory(User::class)->create();
         $this->actingAs($user);
         
-        $record = factory(Record::class)->create();
+        $record = factory(Record::class)->states('approved')->create();
         $tag = factory(Tag::class)->create();
 
         $record->tags()->save($tag);

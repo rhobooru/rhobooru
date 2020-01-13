@@ -22,12 +22,14 @@ class TagTest extends TestCase
      */
     public function tag_can_find_their_records()
     {
-        $record = factory(Record::class)->create();
+        $record = factory(Record::class)->states('approved')->create();
         $tag = factory(Tag::class)->create();
 
         $this->assertEquals(0, $tag->records()->count());
 
         $tag->records()->save($record);
+
+        $tag->refresh();
 
         $this->assertEquals(1, $tag->records()->count());
         $this->assertEquals($record->id, Tag::find($tag->id)->records()->first()->id);
@@ -183,8 +185,8 @@ class TagTest extends TestCase
         $tag1 = factory(Tag::class)->create();
         $tag2 = factory(Tag::class)->create();
 
-        $tag1_records = factory(Record::class, 10)->create();
-        $tag2_records = factory(Record::class, 5)->create();
+        $tag1_records = factory(Record::class, 10)->states('approved')->create();
+        $tag2_records = factory(Record::class, 5)->states('approved')->create();
 
         $tag1_records_count = $tag1_records->count();
         $tag2_records_count = $tag2_records->count();
@@ -221,9 +223,9 @@ class TagTest extends TestCase
         $tag1 = factory(Tag::class)->create();
         $tag2 = factory(Tag::class)->create();
 
-        $tag1_records = factory(Record::class, 10)->create();
-        $tag2_records = factory(Record::class, 5)->create();
-        $shared_records = factory(Record::class, 4)->create();
+        $tag1_records = factory(Record::class, 10)->states('approved')->create();
+        $tag2_records = factory(Record::class, 5)->states('approved')->create();
+        $shared_records = factory(Record::class, 4)->states('approved')->create();
 
         $tag1_records_ids = $tag1_records->pluck('id')->toArray();
         $tag2_records_ids = $tag2_records->pluck('id')->toArray();
@@ -292,8 +294,8 @@ class TagTest extends TestCase
         $tag2 = factory(Tag::class)->create();
         $tag3 = factory(Tag::class)->create();
 
-        $tag1_records = factory(Record::class, 10)->create();
-        $tag3_records = factory(Record::class, 10)->create();
+        $tag1_records = factory(Record::class, 10)->states('approved')->create();
+        $tag3_records = factory(Record::class, 10)->states('approved')->create();
 
         $tag1_records_ids = $tag1_records->pluck('id')->toArray();
         $tag1_records_count = $tag1_records->count();
@@ -370,7 +372,7 @@ class TagTest extends TestCase
         $tag1 = factory(Tag::class)->create();
         $tag2 = factory(Tag::class)->create();
 
-        $tag1_records = factory(Record::class, 10)->create();
+        $tag1_records = factory(Record::class, 10)->states('approved')->create();
 
         $tag1_records_ids = $tag1_records->pluck('id')->toArray();
         $tag1_records_count = $tag1_records->count();

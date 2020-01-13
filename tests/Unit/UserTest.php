@@ -111,8 +111,8 @@ class UserTest extends TestCase
         $user->refresh();
 
         $this->assertEquals(1, Folder::createdBy($user->id)->favorites()->count());
-        $this->assertInstanceOf(Folder::class, $user->favoritesFolder->first());
-        $this->assertEquals(Folder::createdBy($user->id)->favorites()->first()->id, $user->favoritesFolder->first()->id);
+        $this->assertInstanceOf(Folder::class, $user->favoritesFolder);
+        $this->assertEquals(Folder::createdBy($user->id)->favorites()->first()->id, $user->favoritesFolder->id);
     }
 
     /**
@@ -130,8 +130,8 @@ class UserTest extends TestCase
         $user->refresh();
 
         $this->assertEquals(1, Folder::createdBy($user->id)->quickList()->count());
-        $this->assertInstanceOf(Folder::class, $user->quickListFolder->first());
-        $this->assertEquals(Folder::createdBy($user->id)->quickList()->first()->id, $user->quickListFolder->first()->id);
+        $this->assertInstanceOf(Folder::class, $user->quickListFolder);
+        $this->assertEquals(Folder::createdBy($user->id)->quickList()->first()->id, $user->quickListFolder->id);
     }
 
     /**
@@ -148,7 +148,7 @@ class UserTest extends TestCase
         $user->forceDelete();
 
         $this->assertEquals(0, Folder::withTrashed()->createdBy($user->id)->favorites()->count());
-        $this->assertNull($user->favoritesFolder->first());
+        $this->assertNull($user->favoritesFolder);
     }
 
     /**
@@ -165,7 +165,7 @@ class UserTest extends TestCase
         $user->forceDelete();
 
         $this->assertEquals(0, Folder::withTrashed()->createdBy($user->id)->quickList()->count());
-        $this->assertNull($user->quickListFolder->first());
+        $this->assertNull($user->quickListFolder);
     }
 
     /**

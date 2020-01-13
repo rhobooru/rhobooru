@@ -24,7 +24,7 @@ class RecordTypeTest extends TestCase
     {
         $record_type = factory(RecordType::class)->create();
 
-        $record = factory(Record::class)->create([
+        $record = factory(Record::class)->states('approved')->create([
             'record_type_id' => $record_type->id,
         ]);
 

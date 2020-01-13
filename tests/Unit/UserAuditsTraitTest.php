@@ -29,7 +29,9 @@ class UserAuditsTraitTest extends TestCase
 
         $record = factory(Record::class)->create();
 
-        $this->assertEquals($user->username, Record::find($record->id)->created_by->username);
+        $record->refresh();
+
+        $this->assertEquals($user->username, $record->created_by->username);
     }
 
     /**
@@ -50,7 +52,9 @@ class UserAuditsTraitTest extends TestCase
         $record->md5 = '1234';
         $record->save();
 
-        $this->assertEquals($user->username, Record::find($record->id)->updated_by->username);
+        $record->refresh();
+
+        $this->assertEquals($user->username, $record->updated_by->username);
     }
 
     /**
@@ -71,6 +75,6 @@ class UserAuditsTraitTest extends TestCase
         $id = $record->id;
         $record->delete();
 
-        $this->assertEquals($user->username, Record::withTrashed()->find($id)->deleted_by->username);
+        $this->assertEquals($user->username, Record::withoutGlobalScopes()->withTrashed()->find($id)->deleted_by->username);
     }
 }
