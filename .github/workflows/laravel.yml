@@ -9,8 +9,9 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: make keys
-      run: openssl genrsa -out storage/oauth-private.key 4096
-      run: openssl rsa -in storage/oauth-private.key -pubout > storage/oauth-public.key
+      run: |
+        openssl genrsa -out storage/oauth-private.key 4096
+        openssl rsa -in storage/oauth-private.key -pubout > storage/oauth-public.key
       
     - name: Install dependencies
       run: composer install -n --prefer-dist
