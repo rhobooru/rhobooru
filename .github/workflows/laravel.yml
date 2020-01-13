@@ -18,11 +18,14 @@ jobs:
       run: |
         mkdir -p storage/framework/sessions
         mkdir -p storage/framework/views
+        mkdir -p storage/framework/cache
         mkdir -p storage/framework/cache/data
+        mkdir -p storage/logs
         
     - name: Fix permissions
       run: |
-        sudo chmod -R 775 storage bootstrap
+        sudo chmod -R 775 bootstrap logs
+        sudo chmod -R 600 storage
       
     - name: Generate key
       run: php artisan key:generate
