@@ -18,16 +18,22 @@ jobs:
         mkdir -p storage/app
         mkdir -p bootstrap/cache
         
+    - name: Fix permissions
+      run: |
+        sudo chmod 666 storage -R
+        sudo chmod 777 bootstrap storage/framework/cache storage/logs -R
+        
     - name: test
       run: pwd
         
     - name: test2
       run: whoami
         
-    - name: Fix permissions
-      run: |
-        sudo chmod 666 storage -R
-        sudo chmod 777 bootstrap storage/framework/cache storage/logs -R
+    - name: test4
+      run: ls -al .
+        
+    - name: test3
+      run: ls -al storage
       
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
