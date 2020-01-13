@@ -8,15 +8,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       
-    - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
-      
-    - name: Install dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
-      
     - name: Create folders
       run: |
-        rm -rf storage/logs
         mkdir -p storage/framework/sessions
         mkdir -p storage/framework/views
         mkdir -p storage/framework/cache
@@ -29,6 +22,12 @@ jobs:
       run: |
         sudo chmod 666 storage -R
         sudo chmod 777 bootstrap storage/framework/cache storage/logs -R
+      
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
+      
+    - name: Install dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
       
     - name: Generate key
       run: php artisan key:generate
