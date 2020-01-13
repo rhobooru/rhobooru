@@ -26,16 +26,11 @@ jobs:
         
     - name: Fix permissions
       run: |
-        sudo chmod -R 775 bootstrap storage/logs
-        sudo chmod -R 777 storage
+        sudo chmod -R 600 storage 
+        sudo chmod -R 775 bootstrap
       
     - name: Generate key
       run: php artisan key:generate
-      
-    - name: Create database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
         
     - name: Run migrations
       run: php artisan migrate
