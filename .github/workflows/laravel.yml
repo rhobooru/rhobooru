@@ -21,12 +21,13 @@ jobs:
         mkdir -p storage/framework/cache
         mkdir -p storage/framework/cache/data
         mkdir -p storage/logs
+        mkdir -p storage/app
         mkdir -p bootstrap/cache
         
     - name: Fix permissions
       run: |
         sudo chmod -R 775 bootstrap storage/logs
-        sudo chmod -R 600 storage
+        sudo chmod -R 777 storage
       
     - name: Generate key
       run: php artisan key:generate
