@@ -16,11 +16,11 @@ jobs:
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       
-    - name: Generate application key
-      run: php artisan key:generate
-      
     - name: Install dependencies
       run: composer install -n --prefer-dist
+      
+    - name: Generate application key
+      run: php artisan key:generate
         
     - name: Run migrations
       run: php artisan migrate
