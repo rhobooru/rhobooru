@@ -18,6 +18,12 @@ jobs:
         mkdir -p storage/app
         mkdir -p bootstrap/cache
         
+    - name: test
+      run: pwd
+        
+    - name: test2
+      run: whoami
+        
     - name: Fix permissions
       run: |
         sudo chmod 666 storage -R
