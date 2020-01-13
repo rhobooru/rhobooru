@@ -8,19 +8,19 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: make keys
+    - name: Generate Passport keys
       run: |
         openssl genrsa -out storage/oauth-private.key 4096
         openssl rsa -in storage/oauth-private.key -pubout > storage/oauth-public.key
       
-    - name: Install dependencies
-      run: composer install -n --prefer-dist
-      
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
       
-    - name: Generate key
+    - name: Generate application key
       run: php artisan key:generate
+      
+    - name: Install dependencies
+      run: composer install -n --prefer-dist
         
     - name: Run migrations
       run: php artisan migrate
