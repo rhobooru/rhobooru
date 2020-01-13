@@ -1,0 +1,94 @@
+type Record {
+    id: ID!
+    md5: String!
+    phash: String
+    distance: Int
+    title: String
+    file_extension: String!
+    record_type_id: Int!
+    content_rating_id: Int!
+    #record_type: RecortType! @hasOne @lazyLoad(relations: ["record_type"])
+    content_rating: ContentRating! @hasOne @lazyLoad(relations: ["content_rating"])
+    upload_complete: Boolean!
+    approved: Boolean!
+    cache_tag_count: Int!
+    cache_folder_count: Int!
+    image: String
+    thumbnail: String
+    preview: String
+    width: Int
+    height: Int
+    file_size: Int
+    aspect_ratio: Float
+
+    created_at: Date!
+    updated_at: Date!
+    deleted_at: Date
+
+    created_by: User!
+    updated_by: User!
+    deleted_by: User
+
+    tags: [Tag!] @hasMany
+}
+
+extend type Query{
+    # Index
+    records: [Record!]!
+        @softDeletes
+        @paginate(defaultCount: 30) 
+
+    # Find
+    record(id: ID @eq, md5: String @eq): Record @find
+
+    searchRecords(query: String): [Record!]!
+        @paginate(defaultCount: 30, builder: "App\\Models\\Record@search") 
+
+    similarRecords(id: ID, phash: String): [Record!]!
+        @paginate(defaultCount: 10, builder: "App\\Models\\Record@similarRecords") 
+}
+
+extend type Mutation {
+    # Create
+    createRecord(
+        md5: String! @rules(apply: ["required", "alpha_num", "unique:records,md5"])
+        title: String
+        record_type_id: Int! @rules(apply: ["required", "integer", "exists:App\\Models\\RecordType,id"])
+        content_rating_id: Int! @rules(apply: ["required", "integer", "exists:App\\Models\\ContentRating,id"])
+    ): Record! 
+        @create
+        @can(ability: "create")
+
+    upload(
+        id: ID! @rules(apply: ["required", "integer", "exists:App\\Models\\Record,id"])
+        file: Upload!
+    ): String 
+        @can(ability: "create", model: "App\\Models\\Record")
+
+    # Update
+    updateRecord(
+        id: ID!
+        content_rating_id: Int
+    ): Record 
+        @update 
+        @can(ability: "update", find: id)
+
+    # Delete
+    # deleteRecord(id: ID!): Record @delete
+
+    # Add to Record
+    addTagToRecord(record_id: ID!, tag_id: ID!): Record
+        @can(ability: "addTagToRecord", find: "record_id")
+
+    # Remove from Record
+    removeTagFromRecord(record_id: ID!, tag_id: ID!): Record
+        @can(ability: "removeTagFromRecord", find: "record_id")
+
+    # Sync tags
+    syncRecordTags(
+        record_id: ID!
+        tag_ids: [ID!]!
+    ): Record 
+        @can(ability: "addTagToRecord", find: "record_id")
+        @can(ability: "removeTagFromRecord", find: "record_id")
+}

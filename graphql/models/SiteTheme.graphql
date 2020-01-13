@@ -1,0 +1,13 @@
+type SiteTheme {
+    id: ID!
+    name: String!
+    is_default: Boolean!
+}
+
+extend type Query{
+    # Index
+    siteThemes: [SiteTheme!]! @all
+
+    # Find
+    siteTheme(id: ID @eq): SiteTheme @find
+}

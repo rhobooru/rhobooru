@@ -1,0 +1,11 @@
+type Folder {
+    id: ID
+    name: String
+    description: String
+    cover_image: String
+}
+
+extend type Query{
+    folders: [Folder!]! @paginate(defaultCount: 10) @softDeletes
+    folder(id: ID! @eq): Folder @find
+}

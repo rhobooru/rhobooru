@@ -1,0 +1,14 @@
+type ContentRating {
+    id: ID!
+    name: String!
+    short_name: String!
+    description: String
+}
+
+extend type Query{
+    # Index
+    contentRatings: [ContentRating!]! @all
+
+    # Find
+    contentRating(id: ID @eq): ContentRating @find
+}

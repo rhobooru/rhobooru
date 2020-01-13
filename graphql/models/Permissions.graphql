@@ -1,0 +1,35 @@
+type Role {
+    id: ID!
+    name: String!
+    guard_name: String!
+    permissions: [Permission] @hasMany @lazyLoad(relations: ["permissions"])
+    users: [User] @hasMany @lazyLoad(relations: ["users"])
+}
+
+type Permission {
+    id: ID!
+    name: String!
+    guard_name: String!
+    roles: [Role] @hasMany @lazyLoad(relations: ["roles"])
+    users: [User] @hasMany @lazyLoad(relations: ["users"])
+}
+
+extend type Query{
+    roles: [Role!]! @all(model: "Spatie\\Permission\\Models\\Role")
+    role(id: ID @eq): Role @find
+}
+
+extend type Mutation {
+    # Delete
+    deleteRole(id: ID!): Role 
+        @delete 
+        @middleware(checks: ["auth:api"])  
+
+    # Assign
+    assignRole(user_id: ID!, role_id: ID!): Boolean 
+        @middleware(checks: ["auth:api"])  
+
+    # Revoke
+    removeRole(user_id: ID!, role_id: ID!): Boolean 
+        @middleware(checks: ["auth:api"])  
+}

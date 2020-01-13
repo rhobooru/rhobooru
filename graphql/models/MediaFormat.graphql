@@ -1,0 +1,17 @@
+type MediaFormat {
+    id: ID!
+    extension: String!
+    mime: String!
+    can_produce_thumbnails: Boolean!
+    accepted_for_upload: Boolean!
+    record_type_id: ID!
+    record_type: RecordType! @belongsTo @lazyLoad(relations: ["record_type"])
+}
+
+extend type Query{
+    # Index
+    mediaFormats: [MediaFormat!]! @all
+
+    # Find
+    mediaFormat(id: ID @eq): MediaFormat @find
+}

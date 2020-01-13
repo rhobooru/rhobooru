@@ -1,0 +1,14 @@
+type RecordFit {
+    id: ID!
+    name: String!
+    description: String
+    is_default: Boolean!
+}
+
+extend type Query{
+    # Index
+    recordFits: [RecordFit!]! @all
+
+    # Find
+    recordFit(id: ID @eq): RecordFit @find
+}

@@ -1,0 +1,7 @@
+type Profile {
+    user: User! @belongsTo @lazyLoad(relations: ["user"])
+    user_id: ID!
+    email: String
+    max_content_rating: ContentRating
+    bio: String
+}

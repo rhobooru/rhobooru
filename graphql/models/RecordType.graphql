@@ -1,0 +1,15 @@
+type RecordType {
+    id: ID!
+    name: String!
+    description: String
+    requires_player_controls: Boolean!
+    media_formats: [MediaFormat] @hasMany @lazyLoad(relations: ["media_formats"])
+}
+
+extend type Query{
+    # Index
+    recordTypes: [RecordType!]! @all
+
+    # Find
+    recordType(id: ID @eq): RecordType @find
+}

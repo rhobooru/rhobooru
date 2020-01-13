@@ -1,0 +1,35 @@
+type User {
+    id: ID!
+    username: String!
+    avatar: String
+    avatar_url: String
+    system_account: Boolean!
+    created_at: DateTime!
+    updated_at: DateTime!
+    profile: Profile @hasOne @lazyLoad(relations: ["profile"])
+    permissions: [Permission] @hasMany @lazyLoad(relations: ["permissions"])
+    roles: [Role] @hasMany @lazyLoad(relations: ["roles"])
+    all_permissions: [Permission]
+    records: [Record!] @hasMany(type: "paginator", defaultCount: 10) @lazyLoad(relations: ["records"])
+    folders: [Folder!] @hasMany(type: "paginator", defaultCount: 10) @lazyLoad(relations: ["folders"])
+    favorites_folder: Folder @hasOne(relation: "favoritesFolder") @lazyLoad(relations: ["favoritesFolder"])
+}
+
+extend type Query{
+    users: [User!]! @paginate(defaultCount: 10) @softDeletes
+    user(id: ID! @eq): User @find
+}
+
+extend type Mutation {    
+    # Update
+    updateUser(id: ID!, username: String): User @update
+
+    # Soft Delete
+    deleteUser(id: ID!): User @delete
+
+    # Hard Delete
+    forceDeleteUser(id: ID!): User @forceDelete
+
+    # Restore
+    restoreUser(id: ID!): User @restore
+}

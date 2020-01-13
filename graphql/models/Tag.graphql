@@ -1,0 +1,68 @@
+type Tag {
+    id: ID!
+    name: String!
+    description: String
+    aliased_to_tag_id: ID
+    aliased_to_tag: Tag
+    cache_record_count: Int!
+    cache_folder_count: Int!
+
+    records: [Record!] @hasMany(type: "paginator", defaultCount: 10)
+}
+
+extend type Query{
+    # Index
+    tags(
+        where: WhereConstraints @whereConstraints(columns: [
+            "id", 
+            "name", 
+            "description", 
+            "aliased_to_tag_id",
+            "cache_record_count",
+            "cache_folder_count"
+        ])
+        orderBy: [OrderByClause!] @orderBy
+    ): [Tag!]! 
+        @paginate(defaultCount: 10) 
+        @softDeletes
+        @can(ability: "viewAny")
+
+    # Find
+    tag(id: ID @eq, name: String @eq): Tag 
+        @find
+        @can(ability: "view", find: "id")
+}
+
+extend type Mutation {   
+    # Create
+    createTag(
+        name: String! @rules(apply: ["required", "unique:tags,name"])
+        description: String
+    ): Tag
+        @create 
+        @can(ability: "create")
+
+    updateTag(
+        id: ID!
+        name: String 
+        description: String 
+    ): Tag
+        @update
+        @updateTagValidation
+        @can(ability: "update", find: "id")
+
+    # Soft Delete
+    deleteTag(id: ID!, trashed: Trashed = WITHOUT @trashed): Tag 
+        @delete
+        @can(ability: "delete", find: "id")
+
+    # Hard Delete
+    forceDeleteTag(id: ID!, trashed: Trashed = WITH @trashed): Tag 
+        @forceDelete
+        @can(ability: "forceDelete", find: "id")
+
+    # Restore
+    restoreTag(id: ID!, trashed: Trashed = ONLY @trashed): Tag 
+        @restore
+        @can(ability: "restore", find: "id")
+}
