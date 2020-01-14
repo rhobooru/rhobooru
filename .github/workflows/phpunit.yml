@@ -36,4 +36,11 @@ jobs:
       run: php artisan key:generate
         
     - name: Execute tests
-      run: vendor/bin/phpunit
+      run: vendor/bin/phpunit -c phpunit-ci.xml
+
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./clover.xml
+        flags: unittests
+        fail_ci_if_error: true

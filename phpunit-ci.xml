@@ -4,7 +4,7 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
-         colors="true"
+         colors="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
@@ -24,16 +24,7 @@
             <directory suffix=".php">./app</directory>
         </whitelist>
     </filter>
-    <php>
-        <server name="BCRYPT_ROUNDS" value="4"/>
-        <server name="CACHE_DRIVER" value="array"/>
-        <server name="MAIL_DRIVER" value="array"/>
-        <server name="QUEUE_CONNECTION" value="sync"/>
-        <server name="SESSION_DRIVER" value="array"/>
-        <env name="DB_CONNECTION" value="testing"/>
-        <env name="DB_DEFAULT" value="testing"/>
-    </php>
     <logging>
-        <log type="coverage-html" target="test_coverage" lowUpperBound="50" highLowerBound="100"/>
+        <log type="coverage-clover" target="clover.xml"/>
     </logging>
 </phpunit>
