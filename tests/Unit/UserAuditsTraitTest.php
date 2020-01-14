@@ -18,7 +18,7 @@ class UserAuditsTraitTest extends TestCase
      * Creating a model sets the created_by_user_id to the authed user.
      *
      * @test
-     * @covers \App\Models\Traits\UserAudits::boot
+     * @covers \App\Models\Traits\UserAudits::bootUserAudits
      * @covers \App\Models\Traits\UserAudits::created_by
      */
     public function creating_model_updates_user_id()
@@ -38,7 +38,7 @@ class UserAuditsTraitTest extends TestCase
      * Updating a model sets the updated_by_user_id to the authed user.
      *
      * @test
-     * @covers \App\Models\Traits\UserAudits::boot
+     * @covers \App\Models\Traits\UserAudits::bootUserAudits
      * @covers \App\Models\Traits\UserAudits::updated_by
      */
     public function updating_model_updates_user_id()
@@ -61,7 +61,7 @@ class UserAuditsTraitTest extends TestCase
      * Deleting a model sets the deleted_by_user_id to the authed user.
      *
      * @test
-     * @covers \App\Models\Traits\UserAudits::boot
+     * @covers \App\Models\Traits\UserAudits::bootUserAudits
      * @covers \App\Models\Traits\UserAudits::deleted_by
      */
     public function deleting_model_updates_user_id()

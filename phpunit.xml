@@ -33,8 +33,8 @@
         <env name="DB_CONNECTION" value="testing"/>
         <env name="DB_DEFAULT" value="testing"/>
     </php>
-    <!-- <logging>
+    <logging>
         <log type="coverage-html" target="test_coverage" lowUpperBound="50" highLowerBound="100"/>
         <log type="coverage-clover" target="clover.xml"/>
-    </logging> -->
+    </logging>
 </phpunit>

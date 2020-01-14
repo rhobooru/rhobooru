@@ -41,8 +41,8 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::created
-     * @covers \App\Services\UserObserver::createUserRelationships
-     * @covers \App\Services\UserObserver::createUserProfile
+     * @covers \App\Models\User::createUserRelationships
+     * @covers \App\Models\User::createUserProfile
      */
     public function creating_user_creates_profile()
     {
@@ -58,8 +58,9 @@ class UserTest extends TestCase
      * Force deleting a user should delete its profile.
      *
      * @test
-     * @covers \App\Observers\UserObserver::forceDeleted
-     * @covers \App\Services\UserObserver::forceDeleteUserRelationships
+     * @covers \App\Observers\UserObserver::deleted
+     * @covers \App\Observers\UserObserver::forceDeleting
+     * @covers \App\Models\User::forceDeleteUserRelationships
      */
     public function force_deleting_user_deletes_profile()
     {
@@ -80,7 +81,7 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::deleted
-     * @covers \App\Services\UserObserver::softDeleteUserRelationships
+     * @covers \App\Models\User::softDeleteUserRelationships
      */
     public function soft_deleting_user_does_not_delete_profile()
     {
@@ -101,8 +102,9 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::created
-     * @covers \App\Services\UserObserver::createUserRelationships
-     * @covers \App\Services\UserObserver::createUserFavoritesFolder
+     * @covers \App\Models\User::createUserRelationships
+     * @covers \App\Models\User::createUserRelationships
+     * @covers \App\Models\User::createUserFavoritesFolder
      */
     public function creating_user_creates_favorites_folder()
     {
@@ -120,8 +122,9 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::created
-     * @covers \App\Services\UserObserver::createUserRelationships
-     * @covers \App\Services\UserObserver::createUserQuickListFolder
+     * @covers \App\Models\User::createUserRelationships
+     * @covers \App\Models\User::createUserRelationships
+     * @covers \App\Models\User::createUserQuickListFolder
      */
     public function creating_user_creates_quick_list_folder()
     {
@@ -138,8 +141,9 @@ class UserTest extends TestCase
      * Force deleting a User should force delete its favorites folder.
      *
      * @test
-     * @covers \App\Observers\UserObserver::forceDeleted
-     * @covers \App\Services\UserObserver::forceDeleteUserRelationships
+     * @covers \App\Observers\UserObserver::deleting
+     * @covers \App\Observers\UserObserver::forceDeleting
+     * @covers \App\Models\User::forceDeleteUserRelationships
      */
     public function force_deleting_user_deletes_favorites_folder()
     {
@@ -155,8 +159,9 @@ class UserTest extends TestCase
      * Force deleting a User should force delete its quick list folder.
      *
      * @test
-     * @covers \App\Observers\UserObserver::forceDeleted
-     * @covers \App\Services\UserObserver::forceDeleteUserRelationships
+     * @covers \App\Observers\UserObserver::deleting
+     * @covers \App\Observers\UserObserver::forceDeleting
+     * @covers \App\Models\User::forceDeleteUserRelationships
      */
     public function force_deleting_user_deletes_quick_list_folder()
     {
@@ -173,7 +178,7 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::deleted
-     * @covers \App\Services\UserObserver::softDeleteUserRelationships
+     * @covers \App\Models\User::softDeleteUserRelationships
      */
     public function soft_deleting_user_deletes_private_and_friend_folders()
     {
@@ -222,7 +227,7 @@ class UserTest extends TestCase
      *
      * @test
      * @covers \App\Observers\UserObserver::deleted
-     * @covers \App\Services\UserObserver::softDeleteUserRelationships
+     * @covers \App\Models\User::softDeleteUserRelationships
      */
     public function soft_deleting_user_does_not_delete_public_and_unlisted_folders()
     {
@@ -270,8 +275,9 @@ class UserTest extends TestCase
      * Force deleting a User should force delete all folders.
      *
      * @test
-     * @covers \App\Observers\UserObserver::forceDeleted
-     * @covers \App\Services\UserObserver::forceDeleteUserRelationships
+     * @covers \App\Observers\UserObserver::deleting
+     * @covers \App\Observers\UserObserver::forceDeleting
+     * @covers \App\Models\User::forceDeleteUserRelationships
      */
     public function force_deleting_user_deletes_folders()
     {
@@ -318,7 +324,8 @@ class UserTest extends TestCase
      * Restoring a User should restore private and friend folders.
      *
      * @test
-     * @covers \App\Observers\UserObserver::restore
+     * @covers \App\Observers\UserObserver::restored
+     * @covers \App\Models\User::restoreUserRelationships
      */
     public function restoring_user_restores_private_and_friend_folders()
     {
