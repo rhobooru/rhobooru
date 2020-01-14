@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v1
 
     - name: Generate Passport keys
       run: |
@@ -36,9 +36,9 @@ jobs:
       run: php artisan key:generate
         
     - name: Execute tests
-      run: vendor/bin/phpunit
-      
-    - uses: codecov/codecov-action@master
+      run: vendor/bin/phpunit -c phpunit-ci.xml
+
+    - uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./clover.xml
