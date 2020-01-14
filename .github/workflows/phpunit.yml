@@ -8,12 +8,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - uses: codecov/codecov-action@master
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./clover.xml
-        flags: unittests
-        fail_ci_if_error: true
 
     - name: Generate Passport keys
       run: |
@@ -43,3 +37,10 @@ jobs:
         
     - name: Execute tests
       run: vendor/bin/phpunit
+      
+    - uses: codecov/codecov-action@master
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./clover.xml
+        flags: unittests
+        fail_ci_if_error: true
