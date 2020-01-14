@@ -36,97 +36,6 @@ class TagTest extends TestCase
     }
 
     /**
-     * Adding a Record to a Tag must increment that Tag's cached record count.
-     *
-     * @test
-     * @covers \App\Observers\RecordTagObserver::created
-     * @covers \App\Pivots\RecordTag::save
-     */
-    public function adding_record_should_increment_cached_field()
-    {
-        $record = factory(Record::class)->create();
-        $tag = factory(Tag::class)->create();
-
-        $this->assertEquals(0, Tag::first()->cache_record_count);
-
-        $tag->records()->save($record);
-
-        $this->assertEquals(1, Tag::first()->cache_record_count);
-    }
-
-    /**
-     * Removing a Record from a Tag must decrement that Tag's cached record count.
-     *
-     * @test
-     * @covers \App\Observers\RecordTagObserver::deleted
-     * @covers \App\Pivots\RecordTag::deleting
-     * @covers \App\Pivots\RecordTag::delete
-     */
-    public function removing_record_should_decrement_cached_field()
-    {
-        $record = factory(Record::class)->create();
-        $tag = factory(Tag::class)->create();
-
-        $tag->records()->save($record);
-
-        $this->assertEquals(1, Tag::first()->cache_record_count);
-
-        Tag::first()->records()->detach($record);
-
-        $this->assertEquals(0, Tag::first()->cache_record_count);
-    }
-
-    /**
-     * Force deleting a Record must decrement its Tags' cached record count.
-     *
-     * @test
-     * @covers \App\Observers\RecordObserver::forceDeleted
-     */
-    public function force_deleting_record_should_decrement_cached_field()
-    {
-        $user = factory(User::class)->create();
-        $this->actingAs($user);
-
-        $record = factory(Record::class)->create();
-        $tag = factory(Tag::class)->create();
-
-        $tag->records()->save($record);
-
-        $this->assertEquals(1, Tag::first()->cache_record_count);
-
-        $record->forceDelete();
-        $tag->refresh();
-
-        $this->assertEquals(0, $tag->cache_record_count);
-    }
-
-    /**
-     * Force deleting a tag must decrement its records' cached tag count.
-     *
-     * @test
-     * @covers \App\Observers\TagObserver::forceDeleted
-     * @covers \App\Services\TagService::decrementRecordTagCount
-     */
-    public function force_deleting_tag_should_decrement_cached_field()
-    {
-        $user = factory(User::class)->create();
-        $this->actingAs($user);
-
-        $record = factory(Record::class)->create();
-        $tag = factory(Tag::class)->create();
-
-        $tag->records()->save($record);
-        $record->refresh();
-
-        $this->assertEquals(1, $record->cache_tag_count);
-
-        $tag->forceDelete();
-        $record->refresh();
-
-        $this->assertEquals(0, $record->cache_tag_count);
-    }
-
-    /**
      * Tags must be able to find their aliases (tags aliased to this tag).
      *
      * @test
@@ -174,7 +83,7 @@ class TagTest extends TestCase
      * if they do not already exist.
      *
      * @test
-     * @covers \App\Services\TagService::doAliasSideEffects
+     * @covers \App\Models\Tag::doAliasSideEffects
      * @covers \App\Observers\TagObserver::updating
      */
     public function aliased_tags_move_their_records()
@@ -196,93 +105,19 @@ class TagTest extends TestCase
         $tag2->records()->saveMany($tag2_records);
 
         $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->cache_record_count);
         $this->assertEquals($tag2_records_count, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals($tag2_records_count, Tag::find($tag2->id)->cache_record_count);
 
         $tag1->aliases()->save($tag2);
 
         $this->assertEquals($total_records, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($total_records, Tag::find($tag1->id)->cache_record_count);
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals(0, Tag::find($tag2->id)->cache_record_count);
-    }
-
-    /**
-     * When aliased to another Tag, this Tag's Records must update their cache_tag_count fields.
-     *
-     * @test
-     * @covers \App\Services\TagService::doAliasSideEffects
-     * @covers \App\Observers\TagObserver::updating
-     */
-    public function aliased_tag_records_update_cache_tag_counts()
-    {
-        $user = factory(User::class)->create();
-        $this->actingAs($user);
-
-        $tag1 = factory(Tag::class)->create();
-        $tag2 = factory(Tag::class)->create();
-
-        $tag1_records = factory(Record::class, 10)->states('approved')->create();
-        $tag2_records = factory(Record::class, 5)->states('approved')->create();
-        $shared_records = factory(Record::class, 4)->states('approved')->create();
-
-        $tag1_records_ids = $tag1_records->pluck('id')->toArray();
-        $tag2_records_ids = $tag2_records->pluck('id')->toArray();
-        $shared_records_ids = $shared_records->pluck('id')->toArray();
-
-        $tag1->records()->saveMany($tag1_records);
-        $tag1->records()->saveMany($shared_records);
-        $tag2->records()->saveMany($tag2_records);
-        $tag2->records()->saveMany($shared_records);
-
-        foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
-        {
-            $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
-        }
-
-        foreach(Record::whereIn('id', $tag2_records_ids)->get() as $record)
-        {
-            $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
-        }
-
-        foreach(Record::whereIn('id', $shared_records_ids)->get() as $record)
-        {
-            $this->assertEquals(2, $record->tags()->count());
-            $this->assertEquals(2, $record->cache_tag_count);
-        }
-
-        $tag1->aliases()->save($tag2);
-
-        foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
-        {
-            // The alias_target tag's records should be unchanged.
-            $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
-        }
-
-        foreach(Record::whereIn('id', $tag2_records_ids)->get() as $record)
-        {
-            // The aliased tag's records should be the same after incrementing and decrementing.
-            $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
-        }
-
-        foreach(Record::whereIn('id', $shared_records_ids)->get() as $record)
-        {
-            // The shared records should be decremented.
-            $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
-        }
     }
 
     /**
      * When an aliased tag is re-aliased, no side-effects should happen.
      *
      * @test
-     * @covers \App\Services\TagService::doAliasSideEffects
+     * @covers \App\Models\Tag::doAliasSideEffects
      * @covers \App\Observers\TagObserver::updating
      */
     public function realiased_tag_doesnt_affect_records_or_counts()
@@ -310,23 +145,18 @@ class TagTest extends TestCase
         foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
         {
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->cache_record_count);
 
         foreach(Record::whereIn('id', $tag3_records_ids)->get() as $record)
         {
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag3_records_count, Tag::find($tag3->id)->records()->count());
-        $this->assertEquals($tag3_records_count, Tag::find($tag3->id)->cache_record_count);
 
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals(0, Tag::find($tag2->id)->cache_record_count);
 
 
 
@@ -338,30 +168,25 @@ class TagTest extends TestCase
         {
             // The alias_target tag's records should be unchanged.
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->cache_record_count);
 
         foreach(Record::whereIn('id', $tag3_records_ids)->get() as $record)
         {
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag3_records_count, Tag::find($tag3->id)->records()->count());
-        $this->assertEquals($tag3_records_count, Tag::find($tag3->id)->cache_record_count);
 
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals(0, Tag::find($tag2->id)->cache_record_count);
     }
 
     /**
      * When an aliased tag is un-aliased, no side-effects should happen.
      *
      * @test
-     * @covers \App\Services\TagService::doAliasSideEffects
+     * @covers \App\Models\Tag::doAliasSideEffects
      * @covers \App\Observers\TagObserver::updating
      */
     public function unaliased_tag_doesnt_affect_records_or_counts()
@@ -384,14 +209,11 @@ class TagTest extends TestCase
         foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
         {
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->cache_record_count);
 
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals(0, Tag::find($tag2->id)->cache_record_count);
 
 
 
@@ -404,13 +226,10 @@ class TagTest extends TestCase
         {
             // The alias_target tag's records should be unchanged.
             $this->assertEquals(1, $record->tags()->count());
-            $this->assertEquals(1, $record->cache_tag_count);
         }
 
         $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
-        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->cache_record_count);
 
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
-        $this->assertEquals(0, Tag::find($tag2->id)->cache_record_count);
     }
 }

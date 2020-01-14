@@ -3,11 +3,10 @@ type Tag {
     name: String!
     description: String
     aliased_to_tag_id: ID
-    aliased_to_tag: Tag
-    cache_record_count: Int!
-    cache_folder_count: Int!
+    aliased_to: Tag @hasOne @lazyLoad
 
     records: [Record!] @hasMany(type: "paginator", defaultCount: 10)
+    records_count: Int! @count(relation: "records")
 }
 
 extend type Query{
@@ -18,8 +17,7 @@ extend type Query{
             "name", 
             "description", 
             "aliased_to_tag_id",
-            "cache_record_count",
-            "cache_folder_count"
+            "records_count"
         ])
         orderBy: [OrderByClause!] @orderBy
     ): [Tag!]! 

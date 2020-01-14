@@ -71,8 +71,7 @@ class Record extends Model
      */
     public function tags()
     {
-        return $this->belongsToMany('App\Models\Tag')
-            ->using(\App\Pivots\RecordTag::class);
+        return $this->belongsToMany('App\Models\Tag');
     }
 
     /**
@@ -119,87 +118,17 @@ class Record extends Model
         return $query->where('upload_complete', false);
     }
 
-
-
-
-
-
-
     /**
-     * Decrements all of this Record's relationships' `cached_record_count` fields.
+     * Removed default eager loads from query.
      *
-     * @return void
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function decrementRelationshipCounts()
-    {
-        $this->decrementTagRecordCount();
+    public function scopeNoEagerLoads($query){
+        return $query->setEagerLoads([]);
     }
 
-    /**
-     * Decrements `tags`.`cache_record_count` for tags associated with this
-     * record. Used when a record is being force deleted.
-     */
-    public function decrementTagRecordCount()
-    {
-        \DB::table('tags')
-            ->join('record_tag', 'record_tag.tag_id', '=', 'tags.id')
-            ->where('record_tag.record_id', $this->id)
-            ->decrement('tags.cache_record_count');
-    }
 
-    /**
-     * Recalculates `cache_tag_count` column for this Record.
-     *
-     * @return int Calculated relationship count.
-     */
-    public function recalculateTagCount()
-    {
-        // Check if we're given a record with an 
-        // earger-loaded relationship count.
-        if($this->tags_count !== null)
-        {
-            $this->cache_tag_count = $this->tags_count;
-        }
-        else
-        {
-            // Manually count the relationships.
-            $this->cache_tag_count = $this->tags()->count();
-        }
-
-        $this->save();
-
-        return $this->cache_tag_count;
-    }
-
-    /**
-     * Recalculates `cache_tag_count` column for all Records.
-     *
-     * @param int     $start_id             PK of the Record at which to start processing.
-     * @param int     $number_of_records    Number of Records to process in this round.
-     * @return int PK of the last Record processed.
-     */
-    public static function recalculateAllTagCounts(int $start_id, int $number_of_records)
-    {
-        // Grab the slice of records we want to process
-        // this round with eager-loaded tag count.
-        $records_to_process = Record::withTrashed()
-            ->withCount('tags')
-            ->where('id', '>=', $start_id)
-            ->take($number_of_records)
-            ->get();
-
-        if($records_to_process->isEmpty())
-        {
-            return null;
-        }
-
-        foreach($records_to_process as $record)
-        {
-            $record->recalculateTagCount();
-        }
-
-        return $records_to_process->last()->id;
-    }
 
     public function verifyMD5(string $path): bool
     {

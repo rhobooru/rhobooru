@@ -28,13 +28,7 @@ class CreateFoldersTable extends Migration
             $table->string('cover_image')->nullable();
             $table->unsignedSmallInteger('folder_type_id');
             $table->unsignedSmallInteger('access_type_id');
-
-            // Cached Aggregates
-            $table->unsignedBigInteger('cache_records')->default(0);
-            $table->unsignedBigInteger('cache_views')->default(0);
-            $table->unsignedBigInteger('cache_favorites_count')->default(0);
-            $table->unsignedBigInteger('cache_folders_count')->default(0);
-            $table->unsignedBigInteger('cache_comments_count')->default(0);
+            $table->unsignedBigInteger('views')->default(0);
 
             // Indices & Constraints
             $table->foreign('folder_type_id')->references('id')->on('folder_types');

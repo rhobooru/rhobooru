@@ -44,14 +44,7 @@ class CreateRecordsTable extends Migration
             $table->unsignedDecimal('framerate', 9, 4)->default(0);
             $table->unsignedSmallInteger('record_type_id');
             $table->unsignedSmallInteger('content_rating_id');
-
-            // Cached Aggregates
-            $table->bigInteger('cache_score')->default(0);
-            $table->unsignedBigInteger('cache_views')->default(0);
-            $table->unsignedBigInteger('cache_tag_count')->default(0);
-            $table->unsignedBigInteger('cache_favorites_count')->default(0);
-            $table->unsignedBigInteger('cache_folders_count')->default(0);
-            $table->unsignedBigInteger('cache_comments_count')->default(0);
+            $table->unsignedBigInteger('views')->default(0);
 
             // Indices & Constraints
             $table->unique('md5');

@@ -10,7 +10,10 @@ type User {
     permissions: [Permission] @hasMany @lazyLoad(relations: ["permissions"])
     roles: [Role] @hasMany @lazyLoad(relations: ["roles"])
     all_permissions: [Permission]
+    
     records: [Record!] @hasMany(type: "paginator", defaultCount: 10) @lazyLoad(relations: ["records"])
+    records_count: Int! @count(relation: "records")
+
     folders: [Folder!] @hasMany(type: "paginator", defaultCount: 10) @lazyLoad(relations: ["folders"])
     favorites_folder: Folder @hasOne(relation: "favoritesFolder") @lazyLoad(relations: ["favoritesFolder"])
 }

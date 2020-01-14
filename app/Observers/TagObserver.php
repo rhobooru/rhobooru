@@ -78,7 +78,7 @@ class TagObserver
      */
     public function forceDeleting(Tag $tag)
     {
-        $tag->decrementRelationshipCounts();
+        //
     }
 
     /**

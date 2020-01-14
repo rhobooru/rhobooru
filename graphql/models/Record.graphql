@@ -7,12 +7,10 @@ type Record {
     file_extension: String!
     record_type_id: Int!
     content_rating_id: Int!
-    #record_type: RecortType! @hasOne @lazyLoad(relations: ["record_type"])
-    content_rating: ContentRating! @hasOne @lazyLoad(relations: ["content_rating"])
+    record_type: RecordType! @hasOne @lazyLoad
+    content_rating: ContentRating! @hasOne @lazyLoad
     upload_complete: Boolean!
     approved: Boolean!
-    cache_tag_count: Int!
-    cache_folder_count: Int!
     image: String
     thumbnail: String
     preview: String
@@ -29,7 +27,8 @@ type Record {
     updated_by: User!
     deleted_by: User
 
-    tags: [Tag!] @hasMany
+    tags: [Tag!] @hasMany @lazyLoad
+    tags_count: Int! @count(relation: "tags")
 }
 
 extend type Query{
