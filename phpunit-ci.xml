@@ -4,7 +4,7 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
-         colors="true"
+         colors="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
@@ -25,6 +25,6 @@
         </whitelist>
     </filter>
     <logging>
-        <log type="coverage-xml" target="coverage.xml"/>
+        <log type="coverage-clover" target="clover.xml"/>
     </logging>
 </phpunit>
