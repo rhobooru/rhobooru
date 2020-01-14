@@ -25,15 +25,14 @@
         </whitelist>
     </filter>
     <php>
-        <server name="BCRYPT_ROUNDS" value="4"/>
-        <server name="CACHE_DRIVER" value="array"/>
-        <server name="MAIL_DRIVER" value="array"/>
-        <server name="QUEUE_CONNECTION" value="sync"/>
-        <server name="SESSION_DRIVER" value="array"/>
-        <env name="DB_CONNECTION" value="testing"/>
-        <env name="DB_DEFAULT" value="testing"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_DRIVER" value="array"/>
+        <env name="MAIL_DRIVER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="DB_CONNECTION" value="testing" force="true"/>
     </php>
-    <!-- <logging>
+    <logging>
         <log type="coverage-html" target="test_coverage" lowUpperBound="50" highLowerBound="100"/>
-    </logging> -->
+    </logging>
 </phpunit>
