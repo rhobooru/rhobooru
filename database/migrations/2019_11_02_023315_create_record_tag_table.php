@@ -22,8 +22,8 @@ class CreateRecordTagTable extends Migration
             $table->foreign('record_id')->references('id')->on('records')->onDelete('cascade');
             $table->foreign('tag_id')->references('id')->on('tags')->onDelete('cascade');
 
-            $table->primary(['record_id', 'tag_id']);
-            $table->index('tag_id');
+            $table->primary(['tag_id', 'record_id']);
+            $table->index(['record_id', 'tag_id']);
         });
     }
 

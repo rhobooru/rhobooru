@@ -70,32 +70,6 @@ class Tag extends Model
     }
 
     /**
-     * Scope a query to only include tags with the given translations.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  string $translationField
-     * @param  array $values
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeWhereTranslationIn($query, string $translationField, array $values)
-    {
-        return $query->whereHas('translations', function ($query) use ($translationField, $values) {
-            $query->whereIn($this->getTranslationsTable().'.'.$translationField, $values);
-        });
-    }
-
-    /**
-     * Joins this models translations to the query.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeJoinTranslations($query)
-    {
-        return $query->join('tag_translations', 'tags.id', '=', 'tag_translations.tag_id');
-    }
-
-    /**
      * Removed default eager loads from query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
