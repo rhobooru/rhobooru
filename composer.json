@@ -16,9 +16,7 @@
         "laravel/framework": "^6.2",
         "laravel/passport": "^8.1",
         "laravel/tinker": "^2.0",
-        "maatwebsite/excel": "^3.1",
         "mll-lab/graphql-php-scalars": "^2.1",
-        "mll-lab/laravel-graphql-playground": "^2.0",
         "nuwave/lighthouse": "^4.7",
         "spatie/laravel-cors": "^1.6",
         "spatie/laravel-permission": "^3.2"
@@ -29,7 +27,9 @@
         "haydenpierce/class-finder": "^0.4.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",
-        "phpunit/phpunit": "^8"
+        "phpunit/phpunit": "^8",
+        "maatwebsite/excel": "^3.1",
+        "mll-lab/laravel-graphql-playground": "^2.0"
     },
     "config": {
         "optimize-autoloader": true,
