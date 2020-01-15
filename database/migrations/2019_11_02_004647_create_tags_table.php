@@ -27,10 +27,6 @@ class CreateTagsTable extends Migration
             $table->mediumText('description')->nullable();
             $table->unsignedBigInteger('aliased_to_tag_id')->nullable();
 
-            // Cached Aggregates
-            $table->unsignedBigInteger('cache_record_count')->default(0);
-            $table->unsignedBigInteger('cache_folder_count')->default(0);
-
             // Indicies & Constraints
             $table->foreign('aliased_to_tag_id')->references('id')->on('tags');
         });

@@ -17,7 +17,7 @@ class MediaFormatTest extends TestCase
      * MediaFormats must be able to find their related RecordType.
      *
      * @test
-     * @covers \App\Models\MediaFormat::records_type
+     * @covers \App\Models\MediaFormat::record_type
      */
     public function media_format_can_find_record_type()
     {

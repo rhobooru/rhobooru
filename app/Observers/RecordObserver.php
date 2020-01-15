@@ -61,7 +61,7 @@ class RecordObserver
      */
     public function forceDeleting(Record $record)
     {
-        $record->decrementRelationshipCounts();
+        //
     }
 
     /**
