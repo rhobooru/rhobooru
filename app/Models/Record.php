@@ -164,10 +164,11 @@ class Record extends Model
         $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.image_processing.thumbnails.format');
         $preview_name = $this->md5 . '_preview.' . config('rhobooru.image_processing.previews.format');
 
-        $staging_path = 'uploads/staging';
-        $final_path = config('rhobooru.image_processing.originals.storage_path') . substr($this->md5, 0, 3);
-        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . substr($this->md5, 0, 3);
-        $preview_path = config('rhobooru.image_processing.previews.storage_path') . substr($this->md5, 0, 3);
+        $staging_path = config('rhobooru.image_processing.staging_path');
+        $final_path = config('rhobooru.image_processing.originals.storage_path') . '/' . substr($this->md5, 0, 3);
+        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . '/' .  substr($this->md5, 0, 3);
+        $preview_path = config('rhobooru.image_processing.previews.storage_path') . '/' .  substr($this->md5, 0, 3);
+
 
         $full_staging_path = $staging_path . '/' . $filename;
         $full_staging_thumbnail_path = $staging_path . '/' . $thumbnail_name;
@@ -191,7 +192,7 @@ class Record extends Model
 
 
         // Save the file into the staging path.
-        $file->storeAs($staging_path, $filename);
+        $file->storePubliclyAs($staging_path, $filename);
 
         $this->file_extension = image_type_to_extension(exif_imagetype(Storage::path($full_staging_path)), false);
 
@@ -213,6 +214,7 @@ class Record extends Model
         }
 
         Storage::move($old_full_staging_path, $full_staging_path);
+
 
         $image = Image::make(Storage::path($full_staging_path));
 

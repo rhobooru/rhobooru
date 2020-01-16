@@ -2,6 +2,7 @@ type Tag {
     id: ID!
     name: String!
     description: String
+    summary: String
     aliased_to_tag_id: ID
     aliased_to: Tag @hasOne @lazyLoad
 
@@ -16,6 +17,7 @@ extend type Query{
             "id", 
             "name", 
             "description", 
+            "summary", 
             "aliased_to_tag_id",
             "records_count"
         ])
@@ -35,6 +37,7 @@ extend type Mutation {
     # Create
     createTag(
         name: String! @rules(apply: ["required", "unique:tags,name"])
+        summary: String
         description: String
     ): Tag
         @create 
@@ -43,6 +46,7 @@ extend type Mutation {
     updateTag(
         id: ID!
         name: String 
+        summary: String
         description: String 
     ): Tag
         @update

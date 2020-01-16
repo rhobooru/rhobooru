@@ -19,6 +19,7 @@ class Tag extends Model
         'aliased_to_tag_id',
         'name', 
         'description',
+        'summary',
     ];
 
     /**
