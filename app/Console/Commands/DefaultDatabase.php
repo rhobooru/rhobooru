@@ -58,9 +58,9 @@ class DefaultDatabase extends Command
         \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_ID', $id);
         \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
 
-        Storage::deleteDirectory(Storage::path(config('rhobooru.image_processing.originals.storage_path')));
-        Storage::deleteDirectory(Storage::path(config('rhobooru.image_processing.previews.storage_path')));
-        Storage::deleteDirectory(Storage::path(config('rhobooru.image_processing.thumbnails.storage_path')));
-        Storage::deleteDirectory(Storage::path(config('rhobooru.image_processing.staging_path')));
+        Storage::deleteDirectory(config('rhobooru.image_processing.originals.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.previews.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.thumbnails.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.staging_path'));
     }
 }
