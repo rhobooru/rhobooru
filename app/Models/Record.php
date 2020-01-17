@@ -347,7 +347,7 @@ class Record extends Model
         $filename = $this->md5 . '.' . $this->file_extension;
         $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.image_processing.thumbnails.format');
 
-        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . substr($this->md5, 0, 3);
+        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . '/' . substr($this->md5, 0, 3);
 
         return asset('storage/uploads/thumbnails/' . substr($this->md5, 0, 3) . '/' . $thumbnail_name);
     }
@@ -371,7 +371,7 @@ class Record extends Model
         $filename = $this->md5 . '.' . $this->file_extension;
         $preview_name = $this->md5 . '_preview.' . config('rhobooru.image_processing.previews.format');
 
-        $preview_path = config('rhobooru.image_processing.previews.storage_path') . substr($this->md5, 0, 3);
+        $preview_path = config('rhobooru.image_processing.previews.storage_path') . '/' . substr($this->md5, 0, 3);
 
         if(!Storage::exists($preview_path . '/' . $preview_name))
         {
