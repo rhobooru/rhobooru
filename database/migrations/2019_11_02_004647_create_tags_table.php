@@ -24,6 +24,7 @@ class CreateTagsTable extends Migration
 
             // Tag Info
             $table->string('name');
+            $table->string('summary')->nullable();
             $table->mediumText('description')->nullable();
             $table->unsignedBigInteger('aliased_to_tag_id')->nullable();
 

@@ -57,6 +57,7 @@ class CreateRecordsTable extends Migration
             $table->index('approved');
             $table->index('upload_complete');
             $table->index('deleted_at');
+            $table->index('phash');
         });
 
         //DB::statement('ALTER TABLE records ADD `phash` BINARY(64) NULL');

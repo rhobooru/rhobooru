@@ -27,7 +27,7 @@ class SearchBenchmarkSeeder extends Seeder
 
         $this->loadFile(\App\Models\Tag::class);
 
-        $this->loadFile(\App\Models\TagTranslation::class);
+        //$this->loadFile(\App\Models\TagTranslation::class);
 
         $this->loadFile(\App\Models\Record::class);
 
@@ -65,7 +65,7 @@ class SearchBenchmarkSeeder extends Seeder
         
         $this->writeTags($tag_count);
         
-        $this->writeTagTranslations($tag_count);
+        //$this->writeTagTranslations($tag_count);
         
         $this->writeRecords($record_count);
         
@@ -123,7 +123,7 @@ class SearchBenchmarkSeeder extends Seeder
     {
         echo "Writing tag translations...";
 
-        $file = $this->createFile(\App\Models\TagTranslation::class);
+        //$file = $this->createFile(\App\Models\TagTranslation::class);
 
         $tag_translations = '';
 

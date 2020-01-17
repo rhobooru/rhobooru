@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class DefaultDatabase extends Command
 {
@@ -56,5 +57,10 @@ class DefaultDatabase extends Command
         // Save the client details to the .env file so laravel-graphql can work.
         \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_ID', $id);
         \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
+
+        Storage::deleteDirectory(config('rhobooru.image_processing.originals.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.previews.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.thumbnails.storage_path'));
+        Storage::deleteDirectory(config('rhobooru.image_processing.staging_path'));
     }
 }

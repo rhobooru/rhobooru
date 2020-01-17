@@ -45,6 +45,11 @@ return [
     'image_processing' => [
 
         /*
+         * The path where unprocessed files will be stored.
+         */
+        'staging_path' => 'staging',
+
+        /*
          * Original files are the unmodified uploads.
          */
         'originals' => [
@@ -52,7 +57,7 @@ return [
             /*
              * The path where original images will be saved.
              */
-            'storage_path' => 'public/uploads/images/',
+            'storage_path' => 'uploads/images',
 
         ],
 
@@ -65,7 +70,7 @@ return [
             /*
              * The path where thumbnail images will be saved.
              */
-            'storage_path' => 'public/uploads/thumbnails/',
+            'storage_path' => 'uploads/thumbnails',
 
             /*
              * Resolution, in pixels, for image-type record thumbnails.
@@ -111,7 +116,7 @@ return [
             /*
              * The path where preview images will be saved.
              */
-            'storage_path' => 'public/uploads/previews/',
+            'storage_path' => 'uploads/previews',
 
             /*
              * Resolution, in pixels, for image-type record previews.

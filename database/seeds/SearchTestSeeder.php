@@ -27,7 +27,7 @@ class SearchTestSeeder extends Seeder
         
         $this->seedTags(60000);
         
-        $this->seedTagTranslations(60000);
+        //$this->seedTagTranslations(60000);
         
         $this->seedRecords(5000000);
         
