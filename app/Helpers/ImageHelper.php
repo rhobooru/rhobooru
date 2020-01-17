@@ -48,8 +48,8 @@ class ImageHelper
     {
         $path_info = pathinfo($input_file);
 
-        $width = config('rhobooru.image_processing.thumbnails.width');
-        $height = config('rhobooru.image_processing.thumbnails.height');
+        $width = config('rhobooru.media.images.thumbnails.width');
+        $height = config('rhobooru.media.images.thumbnails.height');
 
         $image = \Image::make($input_file);
 
@@ -63,9 +63,9 @@ class ImageHelper
             $constraint->upsize();
         });
 
-        $thumbnail_filename = $path_info['filename'] . '_thumbnail.' . config('rhobooru.image_processing.thumbnails.format');
+        $thumbnail_filename = $path_info['filename'] . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
 
-        $thumbnail_quality = config('rhobooru.image_processing.thumbnails.format_quality');
+        $thumbnail_quality = config('rhobooru.media.images.thumbnails.format_quality');
 
         $image->save($path_info['dirname'] . '/' . $thumbnail_filename, $thumbnail_quality);
 
@@ -83,8 +83,8 @@ class ImageHelper
     {
         $path_info = pathinfo($input_file);
 
-        $width = config('rhobooru.image_processing.previews.width');
-        $height = config('rhobooru.image_processing.previews.height');
+        $width = config('rhobooru.media.images.previews.width');
+        $height = config('rhobooru.media.images.previews.height');
 
         $image = \Image::make($input_file);
 
@@ -98,9 +98,9 @@ class ImageHelper
             $constraint->upsize();
         });
 
-        $preview_filename = $path_info['filename'] . '_preview.' . config('rhobooru.image_processing.previews.format');
+        $preview_filename = $path_info['filename'] . '_preview.' . config('rhobooru.media.images.previews.format');
 
-        $preview_quality = config('rhobooru.image_processing.previews.format_quality');
+        $preview_quality = config('rhobooru.media.images.previews.format_quality');
 
         $image->save($path_info['dirname'] . '/' . $preview_filename, $preview_quality);
 

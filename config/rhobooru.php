@@ -31,200 +31,205 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Image Processing
+    | Media Processing
     |--------------------------------------------------------------------------
     |
-    | Here are settings related to processing of uploaded images.
-    | 
-    | See the `avatar` section for avatar-related settings.
-    |
-    | Acceptable image formats are tagged in the `media_formats` table.
+    | Here are settings related to processing of uploaded media.
     |
     */
 
-    'image_processing' => [
+    'media' => [
 
         /*
-         * The path where unprocessed files will be stored.
-         */
-        'staging_path' => 'staging',
+        |--------------------------------------------------------------------------
+        | Image Processing
+        |--------------------------------------------------------------------------
+        |
+        | Here are settings related to processing of uploaded images.
+        | 
+        | See the `avatar` section for avatar-related settings.
+        |
+        | Acceptable image formats are tagged in the `media_formats` table.
+        |
+        */
 
-        /*
-         * Original files are the unmodified uploads.
-         */
-        'originals' => [
+        'images' => [
 
             /*
-             * The path where original images will be saved.
+             * The path where unprocessed files will be stored.
              */
-            'storage_path' => 'uploads/images',
+            'staging_path' => 'staging',
 
+            /*
+             * Original files are the unmodified uploads.
+             */
+            'originals' => [
+
+                /*
+                * The path where original images will be saved.
+                */
+                'storage_path' => 'uploads/images',
+
+            ],
+
+            /*
+             * Thumbnails are the images shown on the record listing pages.
+             * eg. main search, folder views, tag pages
+             */
+            'thumbnails' => [
+
+                /*
+                * The path where thumbnail images will be saved.
+                */
+                'storage_path' => 'uploads/thumbnails',
+
+                /*
+                * Resolution, in pixels, for image-type record thumbnails.
+                * 
+                * Images larger than this size in either dimension will be
+                * scaled down to fit within this bounding box, keeping the
+                * original aspect ratio.
+                * 
+                * Images smaller than this in both dimensions will not be
+                * scaled. Instead, the original image will be served.
+                * 
+                * The original files will not be altered.
+                */
+                'width'   => 200,
+                'height'  => 200,
+        
+                /*
+                * Image format for generated thumbnails.
+                * 
+                * Ensure that the server has whatever gd or imagick
+                * extensions are needed to support this format.
+                * 
+                * eg. `webp`, `jpeg`, `png`
+                */
+                'format'  => 'webp',
+
+                /*
+                * If the image format chosen above supports a quality
+                * setting, this is where it's set. Otherwise, this will
+                * be ignored.
+                */
+                'format_quality' => 80,
+
+            ],
+
+            /*
+             * Previews are reasonably-sized versions of images
+             * that save bandwidth without much loss in quality.
+             * eg. record pages
+             */
+            'previews' => [
+
+                /*
+                * The path where preview images will be saved.
+                */
+                'storage_path' => 'uploads/previews',
+
+                /*
+                * Resolution, in pixels, for image-type record previews.
+                * 
+                * Images larger than this size in either dimension will be
+                * scaled down to fit within this bounding box, keeping the
+                * original aspect ratio.
+                * 
+                * Images smaller than this in both dimensions will not be
+                * scaled. Instead, the original image will be served.
+                * 
+                * The original files will not be altered.
+                */
+                'width'   => 1200,
+                'height'  => 1200,
+        
+                /*
+                * Image format for generated thumbnails.
+                * 
+                * Ensure that the server has whatever gd or imagick
+                * extensions are needed to support this format.
+                * 
+                * eg. `webp`, `jpeg`, `png`
+                */
+                'format'  => 'webp',
+
+                /*
+                * If the image format chosen above supports a quality
+                * setting, this is where it's set. Otherwise, this will
+                * be ignored.
+                */
+                'format_quality' => 85,
+
+            ],
+
+            /*
+             * If this setting is on, uploaded images will be inspected
+             * to attempt to determine if they are truly animated or not.
+             * 
+             * If this is off, all uploads with a MIME type tagged as
+             * an animated format in `media_formats` will be considered
+             * animated. However, `gif`s are sometimes static
+             * and erroneously marking them as animated could confuse users.
+             */
+            'determine_if_animated' => true,
+
+            /*
+             * The maximum size (in bytes) for image uploads.
+             * 
+             * This cannot be larger than `upload_max_filesize` and
+             * `post_max_size` in php.ini/.htaccess/vhost.conf/etc
+             */
+            'max_file_size' => 10 * 1024 * 1024, // 10 MiB
         ],
 
+
+
         /*
-         * Thumbnails are the images shown on the record listing pages.
-         * eg. main search, folder views, tag pages
-         */
-        'thumbnails' => [
+        |--------------------------------------------------------------------------
+        | Video Processing
+        |--------------------------------------------------------------------------
+        |
+        | Here are settings related to processing of uploaded videos.
+        |
+        | Acceptable video formats are tagged in the `media_formats` table.
+        |
+        */
+
+        'videos' => [
 
             /*
-             * The path where thumbnail images will be saved.
+             * Determines if a thumbnail will be generated for
+             * the video. 
+             * 
+             * Video thumbnails are shown where ever image thumbnails
+             * are also shown, such as the main search and tag pages.
+             * 
+             * If turned off, a generic placeholder thumbnail will
+             * be shown instead.
              */
-            'storage_path' => 'uploads/thumbnails',
+            'generate_thumbnail' => true,
 
             /*
-             * Resolution, in pixels, for image-type record thumbnails.
+             * The percentage into the video where the thumbnail
+             * should be grabbed.
              * 
-             * Images larger than this size in either dimension will be
-             * scaled down to fit within this bounding box, keeping the
-             * original aspect ratio.
-             * 
-             * Images smaller than this in both dimensions will not be
-             * scaled. Instead, the original image will be served.
-             * 
-             * The original files will not be altered.
+             * For instance, a setting of `0.5` will grab the 
+             * thumbnail from 50% of the way into the video.
              */
-            'width'   => 200,
-            'height'  => 200,
-    
-            /*
-             * Image format for generated thumbnails.
-             * 
-             * Ensure that the server has whatever gd or imagick
-             * extensions are needed to support this format.
-             * 
-             * eg. `webp`, `jpeg`, `png`
-             */
-            'format'  => 'webp',
+            'thumbnail_position' => 0.1,
 
             /*
-             * If the image format chosen above supports a quality
-             * setting, this is where it's set. Otherwise, this will
-             * be ignored.
+             * Determines if a preview will be generated for
+             * the video.
+             * 
+             * Video previews are short, animated image formats
+             * showing segments of the video. They are shown when
+             * the user hovers over a video thumbnail.
              */
-            'format_quality' => 80,
+            'generate_preview' => true,
 
         ],
-
-        /*
-         * Previews are reasonably-sized versions of images
-         * that save bandwidth without much loss in quality.
-         * eg. record pages
-         */
-        'previews' => [
-
-            /*
-             * The path where preview images will be saved.
-             */
-            'storage_path' => 'uploads/previews',
-
-            /*
-             * Resolution, in pixels, for image-type record previews.
-             * 
-             * Images larger than this size in either dimension will be
-             * scaled down to fit within this bounding box, keeping the
-             * original aspect ratio.
-             * 
-             * Images smaller than this in both dimensions will not be
-             * scaled. Instead, the original image will be served.
-             * 
-             * The original files will not be altered.
-             */
-            'width'   => 1200,
-            'height'  => 1200,
-    
-            /*
-             * Image format for generated thumbnails.
-             * 
-             * Ensure that the server has whatever gd or imagick
-             * extensions are needed to support this format.
-             * 
-             * eg. `webp`, `jpeg`, `png`
-             */
-            'format'  => 'webp',
-
-            /*
-             * If the image format chosen above supports a quality
-             * setting, this is where it's set. Otherwise, this will
-             * be ignored.
-             */
-            'format_quality' => 85,
-
-        ],
-    ],
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Animated Image Processing
-    |--------------------------------------------------------------------------
-    |
-    | Here are settings related to processing of uploaded animated images.
-    |
-    | Animated image formats are tagged in the `media_formats` table.
-    |
-    */
-
-    'animated_image_processing' => [
-
-        /*
-         * If this setting is on, uploaded images will be inspected
-         * to attempt to determine if they are truly animated or not.
-         * 
-         * For instance, if this is off, all `gif` uploads will be
-         * considered animated. However, `gif`s are sometimes static
-         * and marking them as animated could confuse users.
-         */
-        'determine_if_animated' => true,
-
-    ],
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Video Processing
-    |--------------------------------------------------------------------------
-    |
-    | Here are settings related to processing of uploaded videos.
-    |
-    | Acceptable video formats are tagged in the `media_formats` table.
-    |
-    */
-
-    'video_processing' => [
-
-        /*
-         * Determines if a thumbnail will be generated for
-         * the video. 
-         * 
-         * Video thumbnails are shown where ever image thumbnails
-         * are also shown, such as the main search and tag pages.
-         * 
-         * If turned off, a generic placeholder thumbnail will
-         * be shown instead.
-         */
-        'generate_thumbnail' => true,
-
-        /*
-         * The percentage into the video where the thumbnail
-         * should be grabbed.
-         * 
-         * For instance, a setting of `0.5` will grab the 
-         * thumbnail from 50% of the way into the video.
-         */
-        'thumbnail_position' => 0.1,
-
-        /*
-         * Determines if a preview will be generated for
-         * the video.
-         * 
-         * Video previews are short, animated image formats
-         * showing segments of the video. They are shown when
-         * the user hovers over a video thumbnail.
-         */
-        'generate_preview' => true,
 
     ],
 
