@@ -41,6 +41,7 @@ class ClearAllCache extends Command
         $this->call('view:clear');
         $this->call('config:clear');
         $this->call('cache:clear');
+        $this->call('lighthouse:clear-cache');
 
         shell_exec('composer dump-autoload');
     }

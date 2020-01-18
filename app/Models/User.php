@@ -65,7 +65,7 @@ class User extends Authenticatable
     /**
      * Get the user's profile.
      */
-    public function profile()
+    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne('App\Models\Profile');
     }
@@ -73,7 +73,7 @@ class User extends Authenticatable
     /**
      * Get the user's folders.
      */
-    public function folders()
+    public function folders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany('App\Models\Folder', 'created_by_user_id');
     }
@@ -81,7 +81,7 @@ class User extends Authenticatable
     /**
      * Get the user's records.
      */
-    public function records()
+    public function records(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany('App\Models\Record', 'created_by_user_id');
     }
@@ -89,7 +89,7 @@ class User extends Authenticatable
     /**
      * Get the user's favorites folder.
      */
-    public function favoritesFolder()
+    public function favoritesFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne('App\Models\Folder', 'created_by_user_id')->favorites();
     }
@@ -97,7 +97,7 @@ class User extends Authenticatable
     /**
      * Get the user's quick list folder.
      */
-    public function quickListFolder()
+    public function quickListFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne('App\Models\Folder', 'created_by_user_id')->quickList();
     }
@@ -105,7 +105,7 @@ class User extends Authenticatable
     /**
      * Get the user's generic folders.
      */
-    public function genericFolders()
+    public function genericFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->folders()->generic();
     }
@@ -113,7 +113,7 @@ class User extends Authenticatable
     /**
      * Get the user's book folders.
      */
-    public function bookFolders()
+    public function bookFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->folders()->books();
     }

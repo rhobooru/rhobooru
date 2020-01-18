@@ -13,7 +13,7 @@ type Tag {
 extend type Query{
     # Index
     tags(
-        where: WhereConstraints @whereConstraints(columns: [
+        where: _ @whereConditions(columns: [
             "id", 
             "name", 
             "description", 
@@ -54,17 +54,20 @@ extend type Mutation {
         @can(ability: "update", find: "id")
 
     # Soft Delete
-    deleteTag(id: ID!, trashed: Trashed = WITHOUT @trashed): Tag 
+    deleteTag(id: ID!): Tag 
         @delete
+        @softDeletes
         @can(ability: "delete", find: "id")
 
     # Hard Delete
-    forceDeleteTag(id: ID!, trashed: Trashed = WITH @trashed): Tag 
+    forceDeleteTag(id: ID!): Tag 
         @forceDelete
+        @softDeletes
         @can(ability: "forceDelete", find: "id")
 
     # Restore
-    restoreTag(id: ID!, trashed: Trashed = ONLY @trashed): Tag 
+    restoreTag(id: ID!): Tag 
         @restore
+        @softDeletes
         @can(ability: "restore", find: "id")
 }

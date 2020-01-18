@@ -5,3 +5,14 @@ type Profile {
     max_content_rating: ContentRating
     bio: String
 }
+
+input UpdateProfileInput {
+    user_id: ID!
+    email: String
+    max_content_rating_id: ID
+    bio: String
+}
+
+input UpdateProfileBelongsTo {
+    update: UpdateProfileInput
+}

@@ -47,7 +47,7 @@ class Profile extends Model
     /**
      * Get the profile's user.
      */
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\User');
     }
@@ -55,7 +55,7 @@ class Profile extends Model
     /**
      * Get the profile's preferred date format.
      */
-    public function date_format()
+    public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\DateFormat');
     }
@@ -63,7 +63,7 @@ class Profile extends Model
     /**
      * Get the profile's preferred site theme.
      */
-    public function site_theme()
+    public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\SiteTheme');
     }
@@ -71,7 +71,7 @@ class Profile extends Model
     /**
      * Get the profile's preferred record fit.
      */
-    public function record_fit()
+    public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\RecordFit');
     }
@@ -79,7 +79,7 @@ class Profile extends Model
     /**
      * Get the profile's preferred max content rating.
      */
-    public function max_content_rating()
+    public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
     }
