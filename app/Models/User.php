@@ -35,6 +35,16 @@ class User extends Authenticatable
     ];
 
     /**
+     * The attributes that should be cast to different types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'settings' => 'array',
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
      * The "booting" method of the model.
      *
      * @return void
@@ -61,13 +71,37 @@ class User extends Authenticatable
     {
         return $this->where('username', $username)->first();
     }
+    
+    /**
+     * Get the users's preferred date format.
+     */
+    public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\DateFormat');
+    }
 
     /**
-     * Get the user's profile.
+     * Get the users's preferred site theme.
      */
-    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasOne('App\Models\Profile');
+        return $this->belongsTo('App\Models\SiteTheme');
+    }
+
+    /**
+     * Get the users's preferred record fit.
+     */
+    public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\RecordFit');
+    }
+
+    /**
+     * Get the users's preferred max content rating.
+     */
+    public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
     }
 
     /**
@@ -143,6 +177,17 @@ class User extends Authenticatable
         return $query->whereNot('anonymous_account', true);
     }
 
+    /**
+     * Restrict a query to system accounts.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSystemAccount($query)
+    {
+        return $query->where('system_account', true);
+    }
+
 
 
 
@@ -157,7 +202,7 @@ class User extends Authenticatable
     public function createUserRelationships()
     {
         // Create user's profile.
-        $this->createUserProfile();
+        // $this->createUserProfile();
 
         // Create user's favorites folder.
         $this->createUserFavoritesFolder();
@@ -171,19 +216,19 @@ class User extends Authenticatable
      * 
      * @return  \App\Models\Profile
      */
-    public function createUserProfile()
-    {
-        if($this->profile()->exists())
-            return $this->profile;
+    // public function createUserProfile()
+    // {
+    //     if($this->profile()->exists())
+    //         return $this->profile;
 
-        return \App\Models\Profile::create([
-            'user_id' => $this->id,
-            'site_theme_id' => \App\Models\SiteTheme::default()->first()->id,
-            'date_format_id' => \App\Models\DateFormat::default()->first()->id,
-            'record_fit_id' => \App\Models\RecordFit::default()->first()->id,
-            'maximum_content_rating_id' => \App\Models\ContentRating::maximum()->first()->id,
-        ]);
-    }
+    //     return \App\Models\Profile::create([
+    //         'user_id' => $this->id,
+    //         'site_theme_id' => \App\Models\SiteTheme::default()->first()->id,
+    //         'date_format_id' => \App\Models\DateFormat::default()->first()->id,
+    //         'record_fit_id' => \App\Models\RecordFit::default()->first()->id,
+    //         'maximum_content_rating_id' => \App\Models\ContentRating::maximum()->first()->id,
+    //     ]);
+    // }
 
     /**
      * Creates the user's favorites folder, if it doesn't exist.
@@ -306,5 +351,18 @@ class User extends Authenticatable
         }
 
         return asset('storage/avatars/' . $this->avatar);
+    }
+    
+    /**
+     * Set the `settings` attribute.
+     *
+     * @param $value array
+     */
+    public function setSettingsAttribute($value)
+    {
+        // Filter out any empty keys.
+        $settings = array_filter($value, 'strlen', ARRAY_FILTER_USE_KEY);
+    
+        $this->attributes['settings'] = json_encode($settings);
     }
 }

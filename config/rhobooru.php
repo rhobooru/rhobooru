@@ -180,7 +180,7 @@ return [
              * This cannot be larger than `upload_max_filesize` and
              * `post_max_size` in php.ini/.htaccess/vhost.conf/etc
              */
-            'max_file_size' => 10 * 1024 * 1024, // 10 MiB
+            'max_file_size' => 100 * 1024 * 1024, // 100 MiB
         ],
 
 

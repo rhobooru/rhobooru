@@ -52,35 +52,5 @@ class Profile extends Model
         return $this->belongsTo('App\Models\User');
     }
 
-    /**
-     * Get the profile's preferred date format.
-     */
-    public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\DateFormat');
-    }
-
-    /**
-     * Get the profile's preferred site theme.
-     */
-    public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\SiteTheme');
-    }
-
-    /**
-     * Get the profile's preferred record fit.
-     */
-    public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\RecordFit');
-    }
-
-    /**
-     * Get the profile's preferred max content rating.
-     */
-    public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
-    }
+    
 }
