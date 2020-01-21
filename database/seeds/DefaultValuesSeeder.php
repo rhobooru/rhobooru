@@ -5,6 +5,8 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Helpers\PermissionsHelper as Perms;
+use \App\Models\SettingGroup;
+use \App\Models\Setting;
 
 class DefaultValuesSeeder extends Seeder
 {
@@ -24,6 +26,8 @@ class DefaultValuesSeeder extends Seeder
         $this->seedAccessTypes();
         $this->seedFolderTypes();
         $this->seedTagAssociationTypes();
+        $this->seedSettingGroups();
+        $this->seedSettings();
 
         // Seed permissions, then roles, then users.
         $this->seedRolesAndPermissions();
@@ -512,6 +516,260 @@ class DefaultValuesSeeder extends Seeder
 
         // The user role is the basic role for registered users.
         Role::create(['name' => 'User']);
+    }
+
+    public function seedSettingGroups()
+    {
+        /**
+         * System Setting Groups
+         */
+
+        $users = SettingGroup::create([
+            'name' => 'Users',
+            'description' => 'Settings related to user accounts.',
+        ]);
+
+        $media = SettingGroup::create([
+            'name' => 'Media',
+            'description' => 'Settings related to processing of uploaded media.',
+        ]);
+
+            $images = SettingGroup::create([
+                'name' => 'Images',
+                'description' => 'Settings related to processing of uploaded images.<br><br>
+                See the `avatar` section for avatar-related settings.<br><br>
+                Acceptable image formats are tagged in the `media_formats` table.',
+                'setting_group_id' => $media->id,
+            ]);
+
+                $originals = SettingGroup::create([
+                    'name' => 'Originals',
+                    'description' => 'Original files are the unmodified uploads.',
+                    'setting_group_id' => $images->id,
+                ]);
+
+                $thumbnails = SettingGroup::create([
+                    'name' => 'Thumbnails',
+                    'description' => 'Thumbnails are the images shown on the record listing pages.<br>
+                    eg. main search, folder views, tag pages',
+                    'setting_group_id' => $images->id,
+                ]);
+
+                $previews = SettingGroup::create([
+                    'name' => 'Previews',
+                    'description' => 'Previews are reasonably-sized versions of images that save bandwidth without much loss in quality.<br>
+                    eg. record pages',
+                    'setting_group_id' => $images->id,
+                ]);
+
+            $videos = SettingGroup::create([
+                'name' => 'Videos',
+                'description' => 'Settings related to processing of uploaded videos.<br><br>
+                Acceptable video formats are tagged in the `media_formats` table.',
+                'setting_group_id' => $media->id,
+            ]);
+
+
+
+        /**
+         * User Setting Groups
+         */
+    }
+
+    public function seedSettings()
+    {
+        /**
+         * System Setting Groups
+         */
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Users')->first()->id,
+            'system_setting' => true,
+            'key' => 'anonymous_user_id',
+            'name' => 'Anonymous User',
+            'description' => 'The dummy account for anonymous users.<br><br>
+            This account should be created automatically during installation but if, for any reason, it changes, pick the new dummy account here.',
+            'default_value' => 1,
+            'control' => 'select',
+            'references_model' => \App\Models\User::class,
+            'references_value' => 'id',
+            'references_text' => 'username',
+            'references_method' => 'withoutGlobalScopes()->systemAccount()'
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'system_setting' => true,
+            'key' => 'staging_path',
+            'name' => 'Staging Path',
+            'description' => 'The path where unprocessed files will be stored.',
+            'default_value' => 'staging',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'system_setting' => true,
+            'key' => 'determine_if_animated',
+            'name' => 'Determine If Animated',
+            'description' => 'If this setting is on, uploaded images will be inspected to attempt to determine if they are truly animated or not.<br><br>
+            If this is off, all uploads with a MIME type tagged as an animated format in `media_formats` will be considered animated. However, `gif`s are sometimes static and erroneously marking them as animated could confuse users.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'system_setting' => true,
+            'key' => 'max_file_size',
+            'name' => 'Max File Size',
+            'description' => 'The maximum size (in bytes) for image uploads.<br><br>
+            This cannot be larger than `upload_max_filesize` and `post_max_size` in php.ini/.htaccess/vhost.conf/etc',
+            'default_value' => App\Helpers\EnvironmentHelper::getMaxUploadSize(),
+            'control' => 'number',
+            'minimum_value' => 0,
+            'maximum_value' => App\Helpers\EnvironmentHelper::getMaxUploadSize(),
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Originals')->first()->id,
+            'system_setting' => true,
+            'key' => 'original_storage_path',
+            'name' => 'Storage Path',
+            'description' => 'The path where original images will be saved.',
+            'default_value' => 'uploads/images',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'system_setting' => true,
+            'key' => 'thumbnail_storage_path',
+            'name' => 'Storage Path',
+            'description' => 'The path where thumbnail images will be saved.',
+            'default_value' => 'uploads/thumbnails',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'system_setting' => true,
+            'key' => 'thumbnail_width',
+            'name' => 'Width',
+            'description' => 'Width, in pixels, for image-type record thumbnails.<br><br>
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            The original files will not be altered.',
+            'default_value' => 200,
+            'control' => 'number',
+            'minimum_value' => 0,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'system_setting' => true,
+            'key' => 'thumbnail_height',
+            'name' => 'Height',
+            'description' => 'Height, in pixels, for image-type record thumbnails.<br><br>
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            The original files will not be altered.',
+            'default_value' => 200,
+            'control' => 'number',
+            'minimum_value' => 0,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'system_setting' => true,
+            'key' => 'thumbnail_format',
+            'name' => 'Format',
+            'description' => 'Image format for generated thumbnails.<br><br>
+            Ensure that the server has whatever gd or imagick extensions are needed to support this format.<br><br>
+            eg. `webp`, `jpeg`, `png`',
+            'default_value' => 'webp',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'system_setting' => true,
+            'key' => 'thumbnail_quality',
+            'name' => 'Quality',
+            'description' => 'If the thumbnail format supports a quality setting, this is where it\'s set. Otherwise, this will be ignored.',
+            'default_value' => 80,
+            'control' => 'number',
+            'minimum_value' => 0,
+            'maximum_value' => 100,
+            'allow_null' => true,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'system_setting' => true,
+            'key' => 'preview_storage_path',
+            'name' => 'Storage Path',
+            'description' => 'The path where preview images will be saved.',
+            'default_value' => 'uploads/previews',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'system_setting' => true,
+            'key' => 'preview_width',
+            'name' => 'Width',
+            'description' => 'Width, in pixels, for image-type record previews.<br><br>
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            The original files will not be altered.',
+            'default_value' => 1200,
+            'control' => 'number',
+            'minimum_value' => 0,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'system_setting' => true,
+            'key' => 'preview_height',
+            'name' => 'Height',
+            'description' => 'Height, in pixels, for image-type record previews.<br><br>
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            The original files will not be altered.',
+            'default_value' => 1200,
+            'control' => 'number',
+            'minimum_value' => 0,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'system_setting' => true,
+            'key' => 'preview_format',
+            'name' => 'Format',
+            'description' => 'Image format for generated previews.<br><br>
+            Ensure that the server has whatever gd or imagick extensions are needed to support this format.<br><br>
+            eg. `webp`, `jpeg`, `png`',
+            'default_value' => 'webp',
+            'control' => 'textbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'system_setting' => true,
+            'key' => 'preview_quality',
+            'name' => 'Quality',
+            'description' => 'If the preview format supports a quality setting, this is where it\'s set. Otherwise, this will be ignored.',
+            'default_value' => 85,
+            'control' => 'number',
+            'minimum_value' => 0,
+            'maximum_value' => 100,
+            'allow_null' => true,
+        ]);
+
+
+        /**
+         * User Setting Groups
+         */
     }
 }
 

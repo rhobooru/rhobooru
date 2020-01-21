@@ -161,13 +161,13 @@ class Record extends Model
 
         // Build the paths and filenames.
         $filename = $this->md5;
-        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.image_processing.thumbnails.format');
-        $preview_name = $this->md5 . '_preview.' . config('rhobooru.image_processing.previews.format');
+        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
+        $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
 
-        $staging_path = config('rhobooru.image_processing.staging_path');
-        $final_path = config('rhobooru.image_processing.originals.storage_path') . '/' . substr($this->md5, 0, 3);
-        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . '/' .  substr($this->md5, 0, 3);
-        $preview_path = config('rhobooru.image_processing.previews.storage_path') . '/' .  substr($this->md5, 0, 3);
+        $staging_path = config('rhobooru.media.images.staging_path');
+        $final_path = config('rhobooru.media.images.originals.storage_path') . '/' . substr($this->md5, 0, 3);
+        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' .  substr($this->md5, 0, 3);
+        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' .  substr($this->md5, 0, 3);
 
 
         $full_staging_path = $staging_path . '/' . $filename;
@@ -345,9 +345,9 @@ class Record extends Model
 
         // Build the paths and filenames.
         $filename = $this->md5 . '.' . $this->file_extension;
-        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.image_processing.thumbnails.format');
+        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
 
-        $thumbnail_path = config('rhobooru.image_processing.thumbnails.storage_path') . substr($this->md5, 0, 3);
+        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' . substr($this->md5, 0, 3);
 
         return asset('storage/uploads/thumbnails/' . substr($this->md5, 0, 3) . '/' . $thumbnail_name);
     }
@@ -369,9 +369,9 @@ class Record extends Model
 
         // Build the paths and filenames.
         $filename = $this->md5 . '.' . $this->file_extension;
-        $preview_name = $this->md5 . '_preview.' . config('rhobooru.image_processing.previews.format');
+        $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
 
-        $preview_path = config('rhobooru.image_processing.previews.storage_path') . substr($this->md5, 0, 3);
+        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' . substr($this->md5, 0, 3);
 
         if(!Storage::exists($preview_path . '/' . $preview_name))
         {

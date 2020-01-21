@@ -19,24 +19,11 @@ $factory->define(Record::class, function (Faker $faker) {
         $defaultContentRatingId = $defaultContentRatingId->id;
     }
 
-    $firstUserId = \App\Models\User::first();
-    if($firstUserId != null)
-    {
-        $firstUserId = $firstUserId->id;
-    }
-
-    if(Auth::check())
-    {
-        $firstUserId = Auth::id();
-    }
-
     return [
         'md5' => $faker->unique()->md5,
         'file_extension' => $faker->fileExtension,
         'record_type_id' => $defaultRecordTypeId ?? factory(\App\Models\RecordType::class)->create()->id,
         'content_rating_id' => $defaultContentRatingId ?? factory(\App\Models\ContentRating::class)->create()->id,
-        'created_by_user_id' => $firstUserId ?? factory(\App\Models\User::class)->create()->id,
-        'updated_by_user_id' => $firstUserId ?? factory(\App\Models\User::class)->create()->id,
         'upload_complete' => true,
     ];
 });

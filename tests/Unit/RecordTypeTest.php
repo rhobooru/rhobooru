@@ -58,4 +58,30 @@ class RecordTypeTest extends TestCase
         $this->assertEquals(2, RecordType::find($record_type->id)->media_formats()->count());
         $this->assertEquals($media_format->id, RecordType::find($record_type->id)->media_formats()->first()->id);
     }
+
+    /**
+     * RecordType queries can be limited by requires_media_controls.
+     *
+     * @test
+     * @covers \App\Models\RecordType::scopeRequiresMediaControls
+     */
+    public function record_type_queries_can_be_limited_by_requires_media_controls()
+    {
+        foreach(RecordType::all() as $model)
+        {
+            $model->requires_player_controls = false;
+            $model->save();
+        }
+
+        $requires = factory(RecordType::class)->create([
+            'requires_player_controls' => true,
+        ]);
+
+        $doesnt_require = factory(RecordType::class)->create([
+            'requires_player_controls' => false,
+        ]);
+
+        $this->assertEquals(1, RecordType::requiresMediaControls()->count());
+        $this->assertEquals($requires->id, RecordType::requiresMediaControls()->first()->id);
+    }
 }

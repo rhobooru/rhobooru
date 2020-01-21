@@ -35,6 +35,16 @@ class User extends Authenticatable
     ];
 
     /**
+     * The attributes that should be cast to different types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'settings' => 'array',
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
      * The "booting" method of the model.
      *
      * @return void
@@ -61,19 +71,43 @@ class User extends Authenticatable
     {
         return $this->where('username', $username)->first();
     }
+    
+    /**
+     * Get the users's preferred date format.
+     */
+    public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\DateFormat');
+    }
 
     /**
-     * Get the user's profile.
+     * Get the users's preferred site theme.
      */
-    public function profile()
+    public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasOne('App\Models\Profile');
+        return $this->belongsTo('App\Models\SiteTheme');
+    }
+
+    /**
+     * Get the users's preferred record fit.
+     */
+    public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\RecordFit');
+    }
+
+    /**
+     * Get the users's preferred max content rating.
+     */
+    public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
     }
 
     /**
      * Get the user's folders.
      */
-    public function folders()
+    public function folders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany('App\Models\Folder', 'created_by_user_id');
     }
@@ -81,7 +115,7 @@ class User extends Authenticatable
     /**
      * Get the user's records.
      */
-    public function records()
+    public function records(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany('App\Models\Record', 'created_by_user_id');
     }
@@ -89,7 +123,7 @@ class User extends Authenticatable
     /**
      * Get the user's favorites folder.
      */
-    public function favoritesFolder()
+    public function favoritesFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne('App\Models\Folder', 'created_by_user_id')->favorites();
     }
@@ -97,7 +131,7 @@ class User extends Authenticatable
     /**
      * Get the user's quick list folder.
      */
-    public function quickListFolder()
+    public function quickListFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne('App\Models\Folder', 'created_by_user_id')->quickList();
     }
@@ -105,7 +139,7 @@ class User extends Authenticatable
     /**
      * Get the user's generic folders.
      */
-    public function genericFolders()
+    public function genericFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->folders()->generic();
     }
@@ -113,7 +147,7 @@ class User extends Authenticatable
     /**
      * Get the user's book folders.
      */
-    public function bookFolders()
+    public function bookFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->folders()->books();
     }
@@ -143,6 +177,17 @@ class User extends Authenticatable
         return $query->whereNot('anonymous_account', true);
     }
 
+    /**
+     * Restrict a query to system accounts.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSystemAccount($query)
+    {
+        return $query->where('system_account', true);
+    }
+
 
 
 
@@ -152,12 +197,12 @@ class User extends Authenticatable
 
 
     /**
-     * Creates all the related models for a user (eg. profile and folders).
+     * Creates all the related models for a user (eg. settings and folders).
      */
     public function createUserRelationships()
     {
-        // Create user's profile.
-        $this->createUserProfile();
+        // Create user's default settings.
+        $this->createUserSettings();
 
         // Create user's favorites folder.
         $this->createUserFavoritesFolder();
@@ -167,22 +212,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Creates the user's profile, if it doesn't exist.
-     * 
-     * @return  \App\Models\Profile
+     * Creates the user's default settings.
+     *
+     * @return void
      */
-    public function createUserProfile()
+    public function createUserSettings()
     {
-        if($this->profile()->exists())
-            return $this->profile;
-
-        return \App\Models\Profile::create([
-            'user_id' => $this->id,
-            'site_theme_id' => \App\Models\SiteTheme::default()->first()->id,
-            'date_format_id' => \App\Models\DateFormat::default()->first()->id,
-            'record_fit_id' => \App\Models\RecordFit::default()->first()->id,
-            'maximum_content_rating_id' => \App\Models\ContentRating::maximum()->first()->id,
-        ]);
+        // TODO
     }
 
     /**
@@ -243,12 +279,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Force deletes all the related models for a user (eg. profile and folders).
+     * Force deletes all the related models for a user (eg. settings and folders).
      */
     public function forceDeleteUserRelationships()
     {
-        // Delete the user's profile.
-        $this->profile()->delete();
+        // Delete the user's settings.
+        // TODO
 
         // Delete the user's folders.
         $this->folders()->forceDelete();
@@ -306,5 +342,18 @@ class User extends Authenticatable
         }
 
         return asset('storage/avatars/' . $this->avatar);
+    }
+    
+    /**
+     * Set the `settings` attribute.
+     *
+     * @param $value array
+     */
+    public function setSettingsAttribute($value)
+    {
+        // Filter out any empty keys.
+        $settings = array_filter($value, 'strlen', ARRAY_FILTER_USE_KEY);
+    
+        $this->attributes['settings'] = json_encode($settings);
     }
 }
