@@ -20,8 +20,13 @@
         </testsuite>
     </testsuites>
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="false">
+        <whitelist>
             <directory suffix=".php">./app</directory>
+            <exclude>
+                <file>./app/Console/Kernel.php</file>
+                <file>./app/Exceptions/Handler.php</file>
+                <directory suffix=".php">./app/Http</directory>
+            </exclude>
         </whitelist>
     </filter>
     <logging>

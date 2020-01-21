@@ -40,8 +40,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'settings' => 'array',
         'email_verified_at' => 'datetime',
+        'system_account' => 'bool',
+        'anonymous_account' => 'bool',
     ];
 
     /**
@@ -171,10 +172,10 @@ class User extends Authenticatable
      */
     public function scopeIsNotAnonymous($query)
     {
-        // Since this field needs to be unique, the default value
-        // is null, not false. So do a whereNot to avoid problems
-        // with clausal combining with orWhere.
-        return $query->whereNot('anonymous_account', true);
+        return $query->where(function ($q) {
+            $q->where('anonymous_account', false)
+                  ->orWhereNull('anonymous_account');
+        });
     }
 
     /**
@@ -342,18 +343,5 @@ class User extends Authenticatable
         }
 
         return asset('storage/avatars/' . $this->avatar);
-    }
-    
-    /**
-     * Set the `settings` attribute.
-     *
-     * @param $value array
-     */
-    public function setSettingsAttribute($value)
-    {
-        // Filter out any empty keys.
-        $settings = array_filter($value, 'strlen', ARRAY_FILTER_USE_KEY);
-    
-        $this->attributes['settings'] = json_encode($settings);
     }
 }

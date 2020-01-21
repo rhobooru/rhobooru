@@ -109,6 +109,24 @@ class UserTest extends TestCase
     }
 
     /**
+     * User can't have multiple favorites folders.
+     *
+     * @test
+     * @covers \App\Models\User::createUserFavoritesFolder
+     */
+    public function user_cant_have_multiple_favorites_folders()
+    {
+        $user = factory(User::class)->create();
+
+        $user->refresh();
+        $user->createUserFavoritesFolder();
+
+        $this->assertEquals(1, Folder::createdBy($user->id)->favorites()->count());
+        $this->assertInstanceOf(Folder::class, $user->favoritesFolder);
+        $this->assertEquals(Folder::createdBy($user->id)->favorites()->first()->id, $user->favoritesFolder->id);
+    }
+
+    /**
      * Creating a User should create a quick list folder.
      *
      * @test
@@ -122,6 +140,24 @@ class UserTest extends TestCase
         $user = factory(User::class)->create();
 
         $user->refresh();
+
+        $this->assertEquals(1, Folder::createdBy($user->id)->quickList()->count());
+        $this->assertInstanceOf(Folder::class, $user->quickListFolder);
+        $this->assertEquals(Folder::createdBy($user->id)->quickList()->first()->id, $user->quickListFolder->id);
+    }
+
+    /**
+     * User can't have multiple quick list folders.
+     *
+     * @test
+     * @covers \App\Models\User::createUserQuickListFolder
+     */
+    public function user_cant_have_multiple_quick_list_folders()
+    {
+        $user = factory(User::class)->create();
+
+        $user->refresh();
+        $user->createUserQuickListFolder();
 
         $this->assertEquals(1, Folder::createdBy($user->id)->quickList()->count());
         $this->assertInstanceOf(Folder::class, $user->quickListFolder);
@@ -360,5 +396,88 @@ class UserTest extends TestCase
 
         $this->assertEquals(2, Folder::createdBy($user->id)->generic()->count());
         $this->assertEquals(2, Folder::createdBy($user->id)->books()->count());
+    }
+
+    /**
+     * Can find anonymous user.
+     *
+     * @test
+     * @covers \App\Models\User::anonymous
+     */
+    public function can_find_anonymous_user()
+    {
+        $user = User::anonymous();
+
+        $this->assertEquals('anonymous', $user->username);
+        $this->assertTrue($user->anonymous_account);
+    }
+
+    /**
+     * Can limit query to anonymous user.
+     *
+     * @test
+     * @covers \App\Models\User::scopeIsAnonymous
+     */
+    public function can_limit_query_to_anonymous_user()
+    {
+        $user = User::isAnonymous()->first();
+
+        $this->assertEquals('anonymous', $user->username);
+        $this->assertTrue($user->anonymous_account);
+    }
+
+    /**
+     * Can limit query to not anonymous user.
+     *
+     * @test
+     * @covers \App\Models\User::scopeIsNotAnonymous
+     */
+    public function can_limit_query_to_not_anonymous_user()
+    {
+        factory(User::class, 10)->create();
+
+        $users = User::isNotAnonymous()->get();
+
+        foreach($users as $user)
+        {
+            $this->assertFalse($user->anonymous_account === null ? false : $user->anonymous_account);
+        }
+    }
+
+    /**
+     * Can get all permissions.
+     *
+     * @test
+     * @covers \App\Models\User::getAllPermissionsAttribute
+     */
+    public function can_get_all_permissions()
+    {
+        $user = factory(User::class)->create();
+
+        $permission = \Spatie\Permission\Models\Permission::create(['name' => 'test']);
+
+        $user->givePermissionTo(['test']);
+
+        $this->assertTrue(in_array('test', $user->allPermissions->pluck('name')->toArray()));
+    }
+
+    /**
+     * Can limit query to system accounts.
+     *
+     * @test
+     * @covers \App\Models\User::scopeSystemAccount
+     */
+    public function can_limit_query_to_system_accounts()
+    {
+        factory(User::class, 10)->create([
+            'system_account' => true,
+        ]);
+
+        $users = User::systemAccount()->get();
+
+        foreach($users as $user)
+        {
+            $this->assertTrue($user->system_account);
+        }
     }
 }
