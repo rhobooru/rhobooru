@@ -44,6 +44,12 @@ class SettingGroup extends Eloquent implements Sortable
         static::addGlobalScope('sorted', function (\Illuminate\Database\Eloquent\Builder $builder) {
             $builder->ordered();
         });
+
+        static::updating(function ($model) {
+            if ($model->isDirty('setting_group_id')) {
+                $model->setHighestOrderNumber();
+            }
+        });
     }
 
     /**
@@ -51,7 +57,7 @@ class SettingGroup extends Eloquent implements Sortable
      */
     public function parent()
     {
-        return $this->belongsTo('App\Models\SettingGroup');
+        return $this->belongsTo('App\Models\SettingGroup', 'setting_group_id');
     }
 
     /**

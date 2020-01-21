@@ -21,7 +21,7 @@ class CreateSettingsTable extends Migration
             $table->unsignedInteger('setting_group_id')->nullable();
             $table->boolean('system_setting')->default(false);
             $table->string('key');
-            $table->unsignedBigInteger('order');
+            $table->unsignedBigInteger('order')->default(0);
             $table->string('name');
             $table->text('description')->nullable();
             $table->text('default_value')->nullable();
@@ -39,7 +39,6 @@ class CreateSettingsTable extends Migration
             $table->foreign('setting_group_id')->references('id')->on('setting_groups')->onDelete('set null');
 
             $table->unique(['key', 'system_setting', 'setting_group_id']);
-            $table->unique(['order', 'system_setting', 'setting_group_id']);
             $table->index('system_setting');
             $table->index('setting_group_id');
             $table->index('references_model');

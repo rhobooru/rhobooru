@@ -72,6 +72,11 @@ trait UserAudits
      */
     public function initializeUserAudits()
     {
+        $this->addFillableFields();
+    }
+
+    protected function addFillableFields()
+    {
         // Make sure code can manually set these values, if desired.
         array_push($this->fillable, 
             'created_by_user_id', 
@@ -123,7 +128,7 @@ trait UserAudits
         }
         else
         {
-            throw new Exception("Invalid parameter `user`");
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
         }
     }
 
@@ -146,7 +151,7 @@ trait UserAudits
         }
         else
         {
-            throw new Exception("Invalid parameter `user`");
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
         }
     }
 
@@ -169,7 +174,7 @@ trait UserAudits
         }
         else
         {
-            throw new Exception("Invalid parameter `user`");
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
         }
     }
 }

@@ -39,6 +39,12 @@ class Setting extends Eloquent implements Sortable
         static::addGlobalScope('sorted', function (\Illuminate\Database\Eloquent\Builder $builder) {
             $builder->ordered();
         });
+
+        static::updating(function ($model) {
+            if ($model->isDirty('setting_group_id') || $model->isDirty('system_setting')) {
+                $model->setHighestOrderNumber();
+            }
+        });
     }
 
     /**
@@ -58,9 +64,7 @@ class Setting extends Eloquent implements Sortable
     {
         // Retrict sort logic to just this item's siblings.
         return static::query()
-            ->where([
-                ['system_setting', '=', $this->system_setting],
-                ['setting_group_id', '=', $this->setting_group_id]
-            ]);
+            ->where('system_setting', $this->system_setting === 1 ? true : false)
+            ->where('setting_group_id', $this->setting_group_id);
     }
 }

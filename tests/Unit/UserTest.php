@@ -17,85 +17,76 @@ class UserTest extends TestCase
     use RefreshDatabase, SeedsDefaultValues;
 
     /**
-     * Users must be able to find their profile.
+     * Profiles must be able to find their site theme.
      *
      * @test
-     * @covers \App\Models\User::profile
+     * @covers \App\Models\Profile::site_theme
      */
-    public function user_can_find_profile()
-    {
-        $user = factory(User::class)->create();
-        $user->profile->delete();
-        $user_id = $user->id;
+    // public function profile_can_find_site_theme()
+    // {
+    //     $relation_id = \App\Models\SiteTheme::where('is_default', true)->first()->id;
 
-        $profile_id = factory(Profile::class)->create([
-            'user_id' => $user_id,
-        ])->user_id;
+    //     $profile_id = factory(\App\Models\Profile::class)->create([
+    //         'site_theme_id' => $relation_id,
+    //     ])->user_id;
 
-        $this->assertInstanceOf(Profile::class, User::find($user_id)->profile);
-        $this->assertEquals($profile_id, User::find($user_id)->profile->user_id);
-    }
+    //     $this->assertInstanceOf(\App\Models\SiteTheme::class, Profile::find($profile_id)->site_theme);
+    //     $this->assertEquals($relation_id, Profile::find($profile_id)->site_theme->id);
+    // }
 
     /**
-     * Creating a User should create a Profile
+     * Profiles must be able to find their date format.
      *
      * @test
-     * @covers \App\Observers\UserObserver::created
-     * @covers \App\Models\User::createUserRelationships
-     * @covers \App\Models\User::createUserProfile
+     * @covers \App\Models\Profile::date_format
      */
-    public function creating_user_creates_profile()
-    {
-        $user = factory(User::class)->create();
+    // public function profile_can_find_date_format()
+    // {
+    //     $relation_id = \App\Models\DateFormat::where('is_default', true)->first()->id;
 
-        $user->refresh();
+    //     $profile_id = factory(\App\Models\Profile::class)->create([
+    //         'date_format_id' => $relation_id,
+    //     ])->user_id;
 
-        $this->assertEquals(1, Profile::where('user_id', $user->id)->count());
-        $this->assertInstanceOf(Profile::class, $user->profile);
-    }
+    //     $this->assertInstanceOf(\App\Models\DateFormat::class, Profile::find($profile_id)->date_format);
+    //     $this->assertEquals($relation_id, Profile::find($profile_id)->date_format->id);
+    // }
 
     /**
-     * Force deleting a user should delete its profile.
+     * Profiles must be able to find their record fit.
      *
      * @test
-     * @covers \App\Observers\UserObserver::deleted
-     * @covers \App\Observers\UserObserver::forceDeleting
-     * @covers \App\Models\User::forceDeleteUserRelationships
+     * @covers \App\Models\Profile::record_fit
      */
-    public function force_deleting_user_deletes_profile()
-    {
-        $user = factory(User::class)->create();
-        $user_id = $user->id;
+    // public function profile_can_find_record_fit()
+    // {
+    //     $relation_id = \App\Models\RecordFit::where('is_default', true)->first()->id;
 
-        $profile = $user->profile;
-        $profile_id = $profile->id;
+    //     $profile_id = factory(\App\Models\Profile::class)->create([
+    //         'record_fit_id' => $relation_id,
+    //     ])->user_id;
 
-        $user->forceDelete();
-
-        $this->assertEquals(0, Profile::where('user_id', $user_id)->count());
-        $this->assertNull(Profile::find($profile_id));
-    }
+    //     $this->assertInstanceOf(\App\Models\RecordFit::class, Profile::find($profile_id)->record_fit);
+    //     $this->assertEquals($relation_id, Profile::find($profile_id)->record_fit->id);
+    // }
 
     /**
-     * Soft deleting a user should not delete its profile.
+     * Profiles must be able to find their max content rating.
      *
      * @test
-     * @covers \App\Observers\UserObserver::deleted
-     * @covers \App\Models\User::softDeleteUserRelationships
+     * @covers \App\Models\Profile::max_content_rating
      */
-    public function soft_deleting_user_does_not_delete_profile()
-    {
-        $user = factory(User::class)->create();
-        $user_id = $user->id;
+    // public function profile_can_find_max_content_rating()
+    // {
+    //     $relation_id = \App\Models\ContentRating::orderBy('order','desc')->first()->id;
 
-        $profile = $user->profile;
-        $profile_id = $profile->user_id;
+    //     $profile_id = factory(\App\Models\Profile::class)->create([
+    //         'maximum_content_rating_id' => $relation_id,
+    //     ])->user_id;
 
-        $user->delete();
-
-        $this->assertEquals(1, Profile::where('user_id', $user_id)->count());
-        $this->assertEquals($user_id, Profile::find($profile_id)->user_id);
-    }
+    //     $this->assertInstanceOf(\App\Models\ContentRating::class, Profile::find($profile_id)->max_content_rating);
+    //     $this->assertEquals($relation_id, Profile::find($profile_id)->max_content_rating->id);
+    // }
 
     /**
      * Creating a User should create a favorites folder.

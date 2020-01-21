@@ -197,12 +197,12 @@ class User extends Authenticatable
 
 
     /**
-     * Creates all the related models for a user (eg. profile and folders).
+     * Creates all the related models for a user (eg. settings and folders).
      */
     public function createUserRelationships()
     {
-        // Create user's profile.
-        // $this->createUserProfile();
+        // Create user's default settings.
+        $this->createUserSettings();
 
         // Create user's favorites folder.
         $this->createUserFavoritesFolder();
@@ -212,23 +212,14 @@ class User extends Authenticatable
     }
 
     /**
-     * Creates the user's profile, if it doesn't exist.
-     * 
-     * @return  \App\Models\Profile
+     * Creates the user's default settings.
+     *
+     * @return void
      */
-    // public function createUserProfile()
-    // {
-    //     if($this->profile()->exists())
-    //         return $this->profile;
-
-    //     return \App\Models\Profile::create([
-    //         'user_id' => $this->id,
-    //         'site_theme_id' => \App\Models\SiteTheme::default()->first()->id,
-    //         'date_format_id' => \App\Models\DateFormat::default()->first()->id,
-    //         'record_fit_id' => \App\Models\RecordFit::default()->first()->id,
-    //         'maximum_content_rating_id' => \App\Models\ContentRating::maximum()->first()->id,
-    //     ]);
-    // }
+    public function createUserSettings()
+    {
+        // TODO
+    }
 
     /**
      * Creates the user's favorites folder, if it doesn't exist.
@@ -288,12 +279,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Force deletes all the related models for a user (eg. profile and folders).
+     * Force deletes all the related models for a user (eg. settings and folders).
      */
     public function forceDeleteUserRelationships()
     {
-        // Delete the user's profile.
-        $this->profile()->delete();
+        // Delete the user's settings.
+        // TODO
 
         // Delete the user's folders.
         $this->folders()->forceDelete();
