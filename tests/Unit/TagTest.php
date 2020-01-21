@@ -232,4 +232,54 @@ class TagTest extends TestCase
 
         $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
     }
+
+    /**
+     * Updating an aliased tag in an unrelated way shouldn't affect alias.
+     *
+     * @test
+     * @covers \App\Models\Tag::doAliasSideEffects
+     */
+    public function updating_aliased_tag_does_nothing()
+    {
+        $user = factory(User::class)->create();
+        $this->actingAs($user);
+
+        $tag1 = factory(Tag::class)->create();
+        $tag2 = factory(Tag::class)->create();
+
+        $tag1_records = factory(Record::class, 10)->states('approved')->create();
+
+        $tag1_records_ids = $tag1_records->pluck('id')->toArray();
+        $tag1_records_count = $tag1_records->count();
+
+        $tag1->records()->saveMany($tag1_records);
+
+        $tag1->aliases()->save($tag2);
+
+        foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
+        {
+            $this->assertEquals(1, $record->tags()->count());
+        }
+
+        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
+
+        $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
+
+
+
+        $tag2->name = 'update_test';
+        $tag2->save();
+        $tag2->doAliasSideEffects();
+
+
+
+        foreach(Record::whereIn('id', $tag1_records_ids)->get() as $record)
+        {
+            $this->assertEquals(1, $record->tags()->count());
+        }
+
+        $this->assertEquals($tag1_records_count, Tag::find($tag1->id)->records()->count());
+
+        $this->assertEquals(0, Tag::find($tag2->id)->records()->count());
+    }
 }
