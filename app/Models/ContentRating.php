@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Scopes\SortedScope;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class ContentRating extends Model
+class ContentRating extends Model implements Sortable
 {
+    use SortableTrait;
+
     /**
      * Whether to allow created_at and updated_at.
      * 
@@ -27,17 +32,27 @@ class ContentRating extends Model
     ];
 
     /**
+     * Sortable confg.
+     *
+     * @var array
+     */
+    public $sortable = [
+        'order_column_name' => 'order',
+        'sort_when_creating' => true,
+    ];
+
+    /**
      * The "booting" method of the model.
      *
      * @return void
      */
     protected static function boot()
     {
+        // @codeCoverageIgnoreStart
         parent::boot();
 
-        static::addGlobalScope('order', function (\Illuminate\Database\Eloquent\Builder $builder) {
-            $builder->orderBy('order', 'asc');
-        });
+        static::addGlobalScope(new SortedScope);
+        // @codeCoverageIgnoreEnd
     }
 
     /**

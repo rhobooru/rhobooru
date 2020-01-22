@@ -22,7 +22,7 @@ class CreateContentRatingsTable extends Migration
             $table->text('description')->nullable();
             $table->boolean('available_to_anonymous')->default(true);   // Allow items with this ContentRating to 
                                                                         // be viewed by anonymous users
-            $table->unsignedSmallInteger('order')->unique();
+            $table->unsignedSmallInteger('order');
 
             // Indices & Constraints
         });

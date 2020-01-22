@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Passport\HasApiTokens;
+use App\Scopes\RealUserScope;
 
 class User extends Authenticatable
 {
@@ -52,14 +53,11 @@ class User extends Authenticatable
      */
     protected static function boot()
     {
+        // @codeCoverageIgnoreStart
         parent::boot();
 
-        static::addGlobalScope('real', function (\Illuminate\Database\Eloquent\Builder $builder) {
-            $builder->where(function ($query) {
-                $query->where('system_account', false)
-                      ->orWhere('anonymous_account', true);
-            });
-        });
+        static::addGlobalScope(new RealUserScope);
+        // @codeCoverageIgnoreEnd
     }
 
     /**

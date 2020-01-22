@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\Data;
@@ -83,21 +83,5 @@ class ContentRatingTest extends TestCase
 
         $this->assertEquals(6, count($public_ids));
         $this->assertEqualsCanonicalizing($public_inserted, $public_ids);
-    }
-
-    /**
-     * By default, content ratings should come out ordered by 'order' ascending.
-     *
-     * @test
-     * @covers \App\Models\ContentRating::boot
-     */
-    public function default_order_is_enforced()
-    {
-        factory(ContentRating::class, 10)->create();
-
-        $ratings = ContentRating::get();
-        $sorted_ratings = ContentRating::orderBy('order', 'asc')->get();
-
-        $this->assertEquals($sorted_ratings->toArray(), $ratings->toArray());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -77,30 +77,9 @@ class SettingGroupTest extends TestCase
     }
 
     /**
-     * SettingGroups should be sorted, by default.
-     *
-     * @test
-     * @covers \App\Models\SettingGroup::boot
-     * @covers \App\Models\SettingGroup::buildSortQuery
-     */
-    public function setting_groups_are_sorted_by_default()
-    {
-        [$group1, $group2, $group3] = factory(SettingGroup::class, 3)->create();
-
-        $this->assertEquals([$group1->id, $group2->id, $group3->id], 
-            SettingGroup::pluck('id')->toArray());
-
-        SettingGroup::swapOrder($group1, $group3);
-
-        $this->assertEquals([$group3->id, $group2->id, $group1->id], 
-            SettingGroup::pluck('id')->toArray());
-    }
-
-    /**
      * SettingGroups should be sorted by parent.
      *
      * @test
-     * @covers \App\Models\SettingGroup::boot
      * @covers \App\Models\SettingGroup::buildSortQuery
      */
     public function setting_groups_are_inserted_with_correct_order()
@@ -122,7 +101,6 @@ class SettingGroupTest extends TestCase
      * SettingGroups can re-sort by parent.
      *
      * @test
-     * @covers \App\Models\SettingGroup::boot
      * @covers \App\Models\SettingGroup::buildSortQuery
      */
     public function setting_groups_can_resort_by_parent()
@@ -152,8 +130,7 @@ class SettingGroupTest extends TestCase
      * SettingGroups resort when updating group.
      *
      * @test
-     * @covers \App\Models\SettingGroup::boot
-     * @covers \App\Models\SettingGroup::buildSortQuery
+     * @covers \App\Observers\SettingGroupObserver::updating
      */
     public function settings_resort_when_updating_group()
     {

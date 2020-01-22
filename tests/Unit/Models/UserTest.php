@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -479,5 +479,22 @@ class UserTest extends TestCase
         {
             $this->assertTrue($user->system_account);
         }
+    }
+
+    /**
+     * Passport can find users.
+     *
+     * @test
+     * @covers \App\Models\User::findForPassport
+     */
+    public function passport_can_find_users()
+    {
+        $model = factory(User::class)->create([
+            'username' => 'test',
+        ]);
+
+        $found = $model->findForPassport('test');
+
+        $this->assertEquals($model->id, $found->id);
     }
 }
