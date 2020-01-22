@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use \App\Helpers\ImageHelper;
-use Intervention\Image\ImageManagerStatic as Image;
+use App\Scopes\UploadedScope;
 use App\Models\Traits\UserAudits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class Record extends Model
 {
@@ -43,11 +44,7 @@ class Record extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('uploaded', function (\Illuminate\Database\Eloquent\Builder $builder) {
-            $builder->where(function ($query) {
-                $query->where('upload_complete', true);
-            });
-        });
+        static::addGlobalScope(new UploadedScope);
     }
 
     /**

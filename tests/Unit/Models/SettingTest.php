@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -46,39 +46,9 @@ class SettingTest extends TestCase
     }
 
     /**
-     * Settings should be sorted, by default.
-     *
-     * @test
-     * @covers \App\Models\Setting::boot
-     * @covers \App\Models\Setting::buildSortQuery
-     */
-    public function settings_are_sorted_by_default()
-    {
-        $group = factory(SettingGroup::class)->create()->fresh();
-
-        [$setting1, $setting2, $setting3] = 
-            factory(Setting::class, 3)->create([
-                'setting_group_id' => $group->id,
-            ]);
-
-        $setting1->refresh();
-        $setting2->refresh();
-        $setting3->refresh();
-
-        $this->assertEquals([$setting1->id, $setting2->id, $setting3->id], 
-            Setting::where('setting_group_id', $group->id)->pluck('id')->toArray());
-
-        Setting::swapOrder($setting1, $setting3);
-
-        $this->assertEquals([$setting3->id, $setting2->id, $setting1->id], 
-            Setting::where('setting_group_id', $group->id)->pluck('id')->toArray());
-    }
-
-    /**
      * Settings should be sorted by group.
      *
      * @test
-     * @covers \App\Models\Setting::boot
      * @covers \App\Models\Setting::buildSortQuery
      */
     public function settings_are_sorted_by_group()
@@ -105,7 +75,6 @@ class SettingTest extends TestCase
      * Settings can resort by group.
      *
      * @test
-     * @covers \App\Models\Setting::boot
      * @covers \App\Models\Setting::buildSortQuery
      */
     public function settings_can_resorted_by_group()
@@ -135,7 +104,6 @@ class SettingTest extends TestCase
      * Settings should be sorted by type.
      *
      * @test
-     * @covers \App\Models\Setting::boot
      * @covers \App\Models\Setting::buildSortQuery
      */
     public function settings_are_sorted_by_type()
@@ -156,7 +124,6 @@ class SettingTest extends TestCase
      * Settings can resort by type.
      *
      * @test
-     * @covers \App\Models\Setting::boot
      * @covers \App\Models\Setting::buildSortQuery
      */
     public function settings_can_resorted_by_type()
@@ -182,8 +149,8 @@ class SettingTest extends TestCase
      * Settings resort when updating type.
      *
      * @test
-     * @covers \App\Models\Setting::boot
      * @covers \App\Models\Setting::buildSortQuery
+     * @covers \App\Observers\SettingObserver::updating
      */
     public function settings_resort_when_updating_type()
     {
@@ -218,8 +185,7 @@ class SettingTest extends TestCase
      * Settings resort when updating group.
      *
      * @test
-     * @covers \App\Models\Setting::boot
-     * @covers \App\Models\Setting::buildSortQuery
+     * @covers \App\Observers\SettingObserver::updating
      */
     public function settings_resort_when_updating_group()
     {

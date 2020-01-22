@@ -11,10 +11,11 @@ class UpdateTagValidationDirective extends ValidationDirective
      * Name of the directive.
      *
      * @return string
+     * @codeCoverageIgnore
      */
     public function name(): string
     {
-        return 'updatetagValidation';
+        return 'updateTagValidation';
     }
 
     /**

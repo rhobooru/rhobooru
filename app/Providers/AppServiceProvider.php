@@ -35,5 +35,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Tag::observe(\App\Observers\TagObserver::class);
         \App\Models\Record::observe(\App\Observers\RecordObserver::class);
         \App\Models\User::observe(\App\Observers\UserObserver::class);
+        \App\Models\Setting::observe(\App\Observers\SettingObserver::class);
+        \App\Models\SettingGroup::observe(\App\Observers\SettingGroupObserver::class);
     }
 }

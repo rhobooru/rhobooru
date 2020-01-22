@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use App\Scopes\SortedScope;
 
 class SettingGroup extends Eloquent implements Sortable
 {
@@ -39,17 +40,11 @@ class SettingGroup extends Eloquent implements Sortable
      */
     protected static function boot()
     {
+        // @codeCoverageIgnoreStart
         parent::boot();
 
-        static::addGlobalScope('sorted', function (\Illuminate\Database\Eloquent\Builder $builder) {
-            $builder->ordered();
-        });
-
-        static::updating(function ($model) {
-            if ($model->isDirty('setting_group_id')) {
-                $model->setHighestOrderNumber();
-            }
-        });
+        static::addGlobalScope(new SortedScope);
+        // @codeCoverageIgnoreEnd
     }
 
     /**

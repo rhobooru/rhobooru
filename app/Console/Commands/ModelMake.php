@@ -11,6 +11,7 @@ class ModelMake extends ModelMakeCommand
      *
      * @param string $rootNamespace
      * @return string
+     * @codeCoverageIgnore
      */
     protected function getDefaultNamespace($rootNamespace)
     {
