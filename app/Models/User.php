@@ -74,34 +74,34 @@ class User extends Authenticatable
     /**
      * Get the users's preferred date format.
      */
-    public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\DateFormat');
-    }
+    // public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // {
+    //     return $this->belongsTo('App\Models\DateFormat');
+    // }
 
     /**
      * Get the users's preferred site theme.
      */
-    public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\SiteTheme');
-    }
+    // public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // {
+    //     return $this->belongsTo('App\Models\SiteTheme');
+    // }
 
     /**
      * Get the users's preferred record fit.
      */
-    public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\RecordFit');
-    }
+    // public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // {
+    //     return $this->belongsTo('App\Models\RecordFit');
+    // }
 
     /**
      * Get the users's preferred max content rating.
      */
-    public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
-    }
+    // public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // {
+    //     return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
+    // }
 
     /**
      * Get the user's folders.

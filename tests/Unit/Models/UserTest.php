@@ -11,6 +11,7 @@ use \App\Models\Profile;
 use \App\Models\Folder;
 use \App\Models\FolderType;
 use \App\Models\AccessType;
+use \App\Models\Record;
 
 class UserTest extends TestCase
 {
@@ -496,5 +497,164 @@ class UserTest extends TestCase
         $found = $model->findForPassport('test');
 
         $this->assertEquals($model->id, $found->id);
+    }
+
+    /**
+     * User can get avatar URL.
+     *
+     * @test
+     * @covers \App\Models\User::getAvatarUrlAttribute
+     */
+    public function user_can_get_avatar_url()
+    {
+        $user = factory(User::class)->create();
+
+        $this->assertNull($user->avatarUrl);
+
+        $user->avatar = 'test.png';
+        $user->save();
+        $user->refresh();
+
+        $this->assertEquals(asset('storage/avatars/test.png'), 
+            $user->avatarUrl);
+    }
+
+    /**
+     * User can find folders.
+     *
+     * @test
+     * @covers \App\Models\User::folders
+     */
+    public function user_can_find_folders()
+    {
+        $user = factory(User::class)->create();
+
+        Folder::where('created_by_user_id', $user->id)->forceDelete();
+
+        factory(Folder::class, 5)->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+        ]);
+
+        $user->refresh();
+
+        $this->assertEquals(5, $user->folders()->count());
+    }
+
+    /**
+     * User can find favorites folder.
+     *
+     * @test
+     * @covers \App\Models\User::favoritesFolder
+     */
+    public function user_can_find_favorites_folder()
+    {
+        $user = factory(User::class)->create();
+
+        Folder::where('created_by_user_id', $user->id)->forceDelete();
+
+        $folder = factory(Folder::class)->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'folder_type_id' => FolderType::favorites()->first()->id,
+        ]);
+
+        $user->refresh();
+
+        $this->assertEquals(1, $user->favoritesFolder()->count());
+        $this->assertEquals($folder->id, $user->favoritesFolder->id);
+    }
+
+    /**
+     * User can find quick list folder.
+     *
+     * @test
+     * @covers \App\Models\User::quickListFolder
+     */
+    public function user_can_find_quick_list_folder()
+    {
+        $user = factory(User::class)->create();
+
+        Folder::where('created_by_user_id', $user->id)->forceDelete();
+
+        $folder = factory(Folder::class)->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'folder_type_id' => FolderType::quickList()->first()->id,
+        ]);
+
+        $user->refresh();
+
+        $this->assertEquals(1, $user->quickListFolder()->count());
+        $this->assertEquals($folder->id, $user->quickListFolder->id);
+    }
+
+    /**
+     * User can find generic folders.
+     *
+     * @test
+     * @covers \App\Models\User::genericFolders
+     */
+    public function user_can_find_generic_folders()
+    {
+        $user = factory(User::class)->create();
+
+        Folder::where('created_by_user_id', $user->id)->forceDelete();
+
+        $folder = factory(Folder::class, 5)->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'folder_type_id' => FolderType::generic()->first()->id,
+        ])->first();
+
+        $user->refresh();
+
+        $this->assertEquals(5, $user->genericFolders()->count());
+        $this->assertEquals($folder->id, $user->genericFolders()->first()->id);
+    }
+
+    /**
+     * User can find book folders.
+     *
+     * @test
+     * @covers \App\Models\User::bookFolders
+     */
+    public function user_can_find_book_folders()
+    {
+        $user = factory(User::class)->create();
+
+        Folder::where('created_by_user_id', $user->id)->forceDelete();
+
+        $folder = factory(Folder::class, 5)->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+            'folder_type_id' => FolderType::book()->first()->id,
+        ])->first();
+
+        $user->refresh();
+
+        $this->assertEquals(5, $user->bookFolders()->count());
+        $this->assertEquals($folder->id, $user->bookFolders()->first()->id);
+    }
+
+    /**
+     * User can find records.
+     *
+     * @test
+     * @covers \App\Models\User::records
+     */
+    public function user_can_find_records()
+    {
+        $user = factory(User::class)->create();
+
+        $record = factory(Record::class, 5)->states('approved')->create([
+            'created_by_user_id' => $user->id,
+            'updated_by_user_id' => $user->id,
+        ])->first();
+
+        $user->refresh();
+
+        $this->assertEquals(5, $user->records()->count());
+        $this->assertEquals($record->id, $user->records()->first()->id);
     }
 }
