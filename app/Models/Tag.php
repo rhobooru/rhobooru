@@ -75,6 +75,7 @@ class Tag extends Model
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
+     * @codeCoverageIgnore
      */
     public function scopeNoEagerLoads($query){
         return $query->setEagerLoads([]);
