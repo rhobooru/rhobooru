@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use AccessType;
 use App\Scopes\RealUserScope;
-use FolderType;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -235,8 +233,8 @@ class User extends Authenticatable
         return \App\Models\Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => FolderType::favorites()->first()->id,
-            'access_type_id' => AccessType::public()->first()->id,
+            'folder_type_id' => \App\Models\FolderType::favorites()->first()->id,
+            'access_type_id' => \App\Models\AccessType::public()->first()->id,
             'name' => 'Favorites',
         ]);
     }
@@ -255,8 +253,8 @@ class User extends Authenticatable
         return \App\Models\Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => FolderType::quickList()->first()->id,
-            'access_type_id' => AccessType::private()->first()->id,
+            'folder_type_id' => \App\Models\FolderType::quickList()->first()->id,
+            'access_type_id' => \App\Models\AccessType::private()->first()->id,
             'name' => 'Quick List',
         ]);
     }

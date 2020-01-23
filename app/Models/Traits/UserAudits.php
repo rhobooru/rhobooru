@@ -49,7 +49,7 @@ trait UserAudits
      */
     private static function assignUpdatingUser($model)
     {
-        $model->updated_by_user_id = $self::getUser();
+        $model->updated_by_user_id = self::getUser();
     }
 
     /**

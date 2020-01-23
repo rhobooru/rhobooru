@@ -23,9 +23,9 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Blueprint::macro('timestampUsers', fn(bool $nullable = false) => $this->addTimestampUsers($nullable));
+        $this->registerTimestampUsers();
 
-        Blueprint::macro('softDeletesUser', fn() => $this->addSoftDeletesUser());
+        $this->registerSoftDeletesUser();
     }
 
     /**
@@ -35,21 +35,23 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function addTimestampUsers(bool $nullable = false)
+    public function registerTimestampUsers()
     {
-        if ($nullable === true) {
-            $this->unsignedbigInteger('created_by_user_id')->nullable();
-        } else {
-            $this->unsignedbigInteger('created_by_user_id');
-        }
+        Blueprint::macro('timestampUsers', function(bool $nullable = false) {
+            if ($nullable === true) {
+                $this->unsignedbigInteger('created_by_user_id')->nullable();
+            } else {
+                $this->unsignedbigInteger('created_by_user_id');
+            }
 
-        $this->unsignedbigInteger('updated_by_user_id')->nullable();
+            $this->unsignedbigInteger('updated_by_user_id')->nullable();
 
-        $this->foreign('created_by_user_id')->references('id')->on('users');
-        $this->foreign('updated_by_user_id')->references('id')->on('users');
+            $this->foreign('created_by_user_id')->references('id')->on('users');
+            $this->foreign('updated_by_user_id')->references('id')->on('users');
 
-        $this->index('created_by_user_id');
-        $this->index('updated_by_user_id');
+            $this->index('created_by_user_id');
+            $this->index('updated_by_user_id');
+        });
     }
 
     /**
@@ -57,12 +59,14 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    private function addSoftDeletesUser()
+    public function registerSoftDeletesUser()
     {
-        $this->unsignedbigInteger('deleted_by_user_id')->nullable();
+        Blueprint::macro('softDeletesUser', function() {
+            $this->unsignedbigInteger('deleted_by_user_id')->nullable();
 
-        $this->foreign('deleted_by_user_id')->references('id')->on('users');
+            $this->foreign('deleted_by_user_id')->references('id')->on('users');
 
-        $this->index('deleted_by_user_id');
+            $this->index('deleted_by_user_id');
+        });
     }
 }
