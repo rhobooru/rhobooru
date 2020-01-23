@@ -2,36 +2,31 @@
 
 namespace App\GraphQL\Mutations;
 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
-use GraphQL\Type\Definition\ResolveInfo;
-use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
-use Joselfonseca\LighthouseGraphQLPassport\GraphQL\Mutations\BaseAuthResolver;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Helpers\PermissionsHelper as Perms;
 use App\Models\User;
+use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Hash;
+use Joselfonseca\LighthouseGraphQLPassport\GraphQL\Mutations\BaseAuthResolver;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class Register extends BaseAuthResolver
 {
     /**
      * @param $rootValue
      * @param array                                                    $args
-     * @param \Nuwave\Lighthouse\Support\Contracts\GraphQLContext|null $context
+     * @param \Nuwave\Lighthouse\Support\Contracts\GraphQLContext      $context
      * @param \GraphQL\Type\Definition\ResolveInfo                     $resolveInfo
      *
      * @throws \Exception
      *
      * @return array
      */
-    public function resolve($rootValue, array $args, GraphQLContext $context = null, ResolveInfo $resolveInfo)
+    public function resolve($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
         $input = collect($args)->except('password_confirmation')->toArray();
         $input['password'] = Hash::make($input['password']);
 
-        $user = new User();
-        $user->fill($input);
-        $user->save();
+        $user = User::create($input)->fresh();
 
         $user->assignRole('User');
 
@@ -40,7 +35,6 @@ class Register extends BaseAuthResolver
             'password' => $args['password'],
         ]);
 
-        $user->refresh();
         $response = $this->makeRequest($credentials);
         $response['user'] = $user;
 

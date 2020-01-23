@@ -1,14 +1,16 @@
 {
-    "name": "laravel/laravel",
+    "name": "rhobooru/rhobooru",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Semantic media gallery.",
     "keywords": [
-        "framework",
-        "laravel"
+        "imageboard",
+        "booru",
+        "media",
+        "tags"
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.2",
+        "php": "^7.4",
         "fideloper/proxy": "^4.0",
         "intervention/image": "^2.5",
         "jenssegers/imagehash": "^0.6.0",
@@ -26,11 +28,12 @@
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.4",
         "haydenpierce/class-finder": "^0.4.0",
+        "maatwebsite/excel": "^3.1",
+        "mll-lab/laravel-graphql-playground": "^2.0",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^3.0",
-        "phpunit/phpunit": "^8",
-        "maatwebsite/excel": "^3.1",
-        "mll-lab/laravel-graphql-playground": "^2.0"
+        "nunomaduro/phpinsights": "^1.11",
+        "phpunit/phpunit": "^8"
     },
     "config": {
         "optimize-autoloader": true,

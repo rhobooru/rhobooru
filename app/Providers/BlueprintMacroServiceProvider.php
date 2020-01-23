@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\ServiceProvider;
 
 class BlueprintMacroServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,6 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**
@@ -24,31 +23,46 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Blueprint::macro('timestampUsers', function (bool $nullable = false) { 
-            if($nullable === true)
-            {
-                $this->unsignedbigInteger('created_by_user_id')->nullable();
-            }
-            else
-            {
-                $this->unsignedbigInteger('created_by_user_id');
-            }
+        Blueprint::macro('timestampUsers', fn(bool $nullable = false) => $this->addTimestampUsers($nullable));
 
-            $this->unsignedbigInteger('updated_by_user_id')->nullable();
+        Blueprint::macro('softDeletesUser', fn() => $this->addSoftDeletesUser());
+    }
 
-            $this->foreign('created_by_user_id')->references('id')->on('users');
-            $this->foreign('updated_by_user_id')->references('id')->on('users');
+    /**
+     * Adds *_by_user_id columns to a table.
+     *
+     * @param bool $nullable If the created_by_user_id field should be nullable.
+     *
+     * @return void
+     */
+    private function addTimestampUsers(bool $nullable = false)
+    {
+        if ($nullable === true) {
+            $this->unsignedbigInteger('created_by_user_id')->nullable();
+        } else {
+            $this->unsignedbigInteger('created_by_user_id');
+        }
 
-            $this->index('created_by_user_id');
-            $this->index('updated_by_user_id');
-        });
+        $this->unsignedbigInteger('updated_by_user_id')->nullable();
 
-        Blueprint::macro('softDeletesUser', function () { 
-            $this->unsignedbigInteger('deleted_by_user_id')->nullable();
+        $this->foreign('created_by_user_id')->references('id')->on('users');
+        $this->foreign('updated_by_user_id')->references('id')->on('users');
 
-            $this->foreign('deleted_by_user_id')->references('id')->on('users');
+        $this->index('created_by_user_id');
+        $this->index('updated_by_user_id');
+    }
 
-            $this->index('deleted_by_user_id');
-        });
+    /**
+     * Adds deleted_by_user_id column to a table.
+     *
+     * @return void
+     */
+    private function addSoftDeletesUser()
+    {
+        $this->unsignedbigInteger('deleted_by_user_id')->nullable();
+
+        $this->foreign('deleted_by_user_id')->references('id')->on('users');
+
+        $this->index('deleted_by_user_id');
     }
 }

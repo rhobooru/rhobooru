@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use AccessType;
+use App\Scopes\RealUserScope;
+use FolderType;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Permission\Traits\HasRoles;
 use Laravel\Passport\HasApiTokens;
-use App\Scopes\RealUserScope;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -20,7 +23,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'username', 
+        'username',
         'password',
         'avatar',
     ];
@@ -31,7 +34,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 
+        'password',
         'remember_token',
     ];
 
@@ -64,17 +67,18 @@ class User extends Authenticatable
      * Find the user instance for the given username.
      *
      * @param  string  $username
+     *
      * @return \App\User
      */
     public function findForPassport($username)
     {
         return $this->where('username', $username)->first();
     }
-    
+
     /**
      * Get the users's preferred date format.
      */
-    // public function date_format(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // public function date_format(): BelongsTo
     // {
     //     return $this->belongsTo('App\Models\DateFormat');
     // }
@@ -82,7 +86,7 @@ class User extends Authenticatable
     /**
      * Get the users's preferred site theme.
      */
-    // public function site_theme(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // public function site_theme(): BelongsTo
     // {
     //     return $this->belongsTo('App\Models\SiteTheme');
     // }
@@ -90,7 +94,7 @@ class User extends Authenticatable
     /**
      * Get the users's preferred record fit.
      */
-    // public function record_fit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // public function record_fit(): BelongsTo
     // {
     //     return $this->belongsTo('App\Models\RecordFit');
     // }
@@ -98,7 +102,7 @@ class User extends Authenticatable
     /**
      * Get the users's preferred max content rating.
      */
-    // public function max_content_rating(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    // public function max_content_rating(): BelongsTo
     // {
     //     return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
     // }
@@ -106,7 +110,7 @@ class User extends Authenticatable
     /**
      * Get the user's folders.
      */
-    public function folders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function folders(): HasMany
     {
         return $this->hasMany('App\Models\Folder', 'created_by_user_id');
     }
@@ -114,7 +118,7 @@ class User extends Authenticatable
     /**
      * Get the user's records.
      */
-    public function records(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function records(): HasMany
     {
         return $this->hasMany('App\Models\Record', 'created_by_user_id');
     }
@@ -122,23 +126,25 @@ class User extends Authenticatable
     /**
      * Get the user's favorites folder.
      */
-    public function favoritesFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function favoritesFolder(): HasOne
     {
-        return $this->hasOne('App\Models\Folder', 'created_by_user_id')->favorites();
+        return $this->hasOne('App\Models\Folder', 'created_by_user_id')
+            ->favorites();
     }
 
     /**
      * Get the user's quick list folder.
      */
-    public function quickListFolder(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function quickListFolder(): HasOne
     {
-        return $this->hasOne('App\Models\Folder', 'created_by_user_id')->quickList();
+        return $this->hasOne('App\Models\Folder', 'created_by_user_id')
+            ->quickList();
     }
 
     /**
      * Get the user's generic folders.
      */
-    public function genericFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function genericFolders(): HasMany
     {
         return $this->folders()->generic();
     }
@@ -146,7 +152,7 @@ class User extends Authenticatable
     /**
      * Get the user's book folders.
      */
-    public function bookFolders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function bookFolders(): HasMany
     {
         return $this->folders()->books();
     }
@@ -155,6 +161,7 @@ class User extends Authenticatable
      * Restrict a query to the anonymous user.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeIsAnonymous($query)
@@ -166,13 +173,14 @@ class User extends Authenticatable
      * Restrict a query to users that aren't the anonymous user.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeIsNotAnonymous($query)
     {
-        return $query->where(function ($q) {
-            $q->where('anonymous_account', false)
-                  ->orWhereNull('anonymous_account');
+        return $query->where(static function($subquery) {
+            $subquery->where('anonymous_account', false)
+                ->orWhereNull('anonymous_account');
         });
     }
 
@@ -180,20 +188,13 @@ class User extends Authenticatable
      * Restrict a query to system accounts.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeSystemAccount($query)
     {
         return $query->where('system_account', true);
     }
-
-
-
-
-
-
-
-
 
     /**
      * Creates all the related models for a user (eg. settings and folders).
@@ -222,38 +223,40 @@ class User extends Authenticatable
 
     /**
      * Creates the user's favorites folder, if it doesn't exist.
-     * 
+     *
      * @return  \App\Models\Folder
      */
     public function createUserFavoritesFolder()
     {
-        if($this->favoritesFolder()->exists())
+        if ($this->favoritesFolder()->exists()) {
             return $this->favoritesFolder->first();
+        }
 
         return \App\Models\Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::favorites()->first()->id,
-            'access_type_id' => \App\Models\AccessType::public()->first()->id,
+            'folder_type_id' => FolderType::favorites()->first()->id,
+            'access_type_id' => AccessType::public()->first()->id,
             'name' => 'Favorites',
         ]);
     }
 
     /**
      * Creates the user's quick list folder, if it doesn't exist.
-     * 
+     *
      * @return  \App\Models\Folder
      */
     public function createUserQuickListFolder()
     {
-        if($this->quickListFolder()->exists())
+        if ($this->quickListFolder()->exists()) {
             return $this->quickListFolder->first();
+        }
 
         return \App\Models\Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::quickList()->first()->id,
-            'access_type_id' => \App\Models\AccessType::private()->first()->id,
+            'folder_type_id' => FolderType::quickList()->first()->id,
+            'access_type_id' => AccessType::private()->first()->id,
             'name' => 'Quick List',
         ]);
     }
@@ -322,9 +325,9 @@ class User extends Authenticatable
     /**
      * Get all user's permissions.
      *
-     * @return Object|null
+     * @return object|null
      */
-    public function getAllPermissionsAttribute(): ?Object
+    public function getAllPermissionsAttribute(): ?object
     {
         return $this->getAllPermissions();
     }
@@ -336,7 +339,7 @@ class User extends Authenticatable
      */
     public function getAvatarUrlAttribute(): ?string
     {
-        if(!$this->avatar){
+        if (! $this->avatar) {
             return null;
         }
 

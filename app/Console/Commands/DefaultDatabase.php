@@ -22,16 +22,6 @@ class DefaultDatabase extends Command
     protected $description = 'Refreshes the database and seeds default values where defined.';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -45,6 +35,18 @@ class DefaultDatabase extends Command
         $seeder = new \DefaultValuesSeeder;
         $seeder->run();
 
+        $this->reinstallPassport();
+
+        $this->deleteMedia();
+    }
+
+    /**
+     * Reinstalls Passport and saves the new client.
+     *
+     * @return void
+     */
+    private function reinstallPassport()
+    {
         // Reinstall passport clients.
         $this->call('passport:install');
 
@@ -55,9 +57,17 @@ class DefaultDatabase extends Command
         $secret = $passwordClient->secret;
 
         // Save the client details to the .env file so laravel-graphql can work.
-        \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_ID', $id);
-        \App\Helpers\EnvironmentHelper::setEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
+        \App\Helpers\EnvironmentHelper::saveEnvironmentValue('PASSPORT_CLIENT_ID', $id);
+        \App\Helpers\EnvironmentHelper::saveEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
+    }
 
+    /**
+     * Deletes uploaded media.
+     *
+     * @return void
+     */
+    private function deleteMedia()
+    {
         Storage::deleteDirectory(config('rhobooru.media.images.originals.storage_path'));
         Storage::deleteDirectory(config('rhobooru.media.images.previews.storage_path'));
         Storage::deleteDirectory(config('rhobooru.media.images.thumbnails.storage_path'));

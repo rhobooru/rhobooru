@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Traits\UserAudits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Traits\UserAudits;
 
 class Folder extends Model
 {
@@ -19,7 +19,7 @@ class Folder extends Model
         'cover_image',
         'folder_type_id',
         'access_type_id',
-        'name', 
+        'name',
         'description',
     ];
 
@@ -43,11 +43,12 @@ class Folder extends Model
      * Get public folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublic($query)
     {
-        return $query->whereHas('access_type', function($query){
+        return $query->whereHas('access_type', static function($query) {
             $query->public();
         });
     }
@@ -56,11 +57,12 @@ class Folder extends Model
      * Get private folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePrivate($query)
     {
-        return $query->whereHas('access_type', function($query){
+        return $query->whereHas('access_type', static function($query) {
             $query->private();
         });
     }
@@ -69,11 +71,12 @@ class Folder extends Model
      * Get friend folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFriends($query)
     {
-        return $query->whereHas('access_type', function($query){
+        return $query->whereHas('access_type', static function($query) {
             $query->friends();
         });
     }
@@ -82,11 +85,12 @@ class Folder extends Model
      * Get unlisted folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUnlisted($query)
     {
-        return $query->whereHas('access_type', function($query){
+        return $query->whereHas('access_type', static function($query) {
             $query->unlisted();
         });
     }
@@ -95,11 +99,12 @@ class Folder extends Model
      * Get favorites folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFavorites($query)
     {
-        return $query->whereHas('folder_type', function($query){
+        return $query->whereHas('folder_type', static function($query) {
             $query->favorites();
         });
     }
@@ -108,11 +113,12 @@ class Folder extends Model
      * Get quick list folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeQuickList($query)
     {
-        return $query->whereHas('folder_type', function($query){
+        return $query->whereHas('folder_type', static function($query) {
             $query->quickList();
         });
     }
@@ -121,11 +127,12 @@ class Folder extends Model
      * Get book folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeBooks($query)
     {
-        return $query->whereHas('folder_type', function($query){
+        return $query->whereHas('folder_type', static function($query) {
             $query->book();
         });
     }
@@ -134,11 +141,12 @@ class Folder extends Model
      * Get generic folders.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeGeneric($query)
     {
-        return $query->whereHas('folder_type', function($query){
+        return $query->whereHas('folder_type', static function($query) {
             $query->generic();
         });
     }

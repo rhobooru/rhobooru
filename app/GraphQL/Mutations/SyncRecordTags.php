@@ -2,9 +2,7 @@
 
 namespace App\GraphQL\Mutations;
 
-use \App\Models\Tag;
-use \App\Models\Record;
-use Spatie\Permission\Models\Role;
+use App\Models\Record;
 
 class SyncRecordTags
 {
@@ -12,7 +10,8 @@ class SyncRecordTags
      * Sync tags for a record.
      *
      * @param  mixed  $root
-     * @param  mixed[]  $args
+     * @param mixed  $args
+     *
      * @return \App\Models\Record
      */
     public function __invoke($root, array $args): Record

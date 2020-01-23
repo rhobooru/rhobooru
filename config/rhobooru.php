@@ -15,12 +15,12 @@ return [
 
         /*
          * The `id` value from the `users` table for the
-         * anonymous account. 
-         * 
-         * This account should be created automatically during 
-         * installation but if, for any reason, it changes, set 
-         * this value to the `id` value where 
-         * `users`.`anonymous_account` = true, clear the config cache, 
+         * anonymous account.
+         *
+         * This account should be created automatically during
+         * installation but if, for any reason, it changes, set
+         * this value to the `id` value where
+         * `users`.`anonymous_account` = true, clear the config cache,
          * and restart the system.
          */
         'anonymous_user_id' => 1,
@@ -46,7 +46,7 @@ return [
         |--------------------------------------------------------------------------
         |
         | Here are settings related to processing of uploaded images.
-        | 
+        |
         | See the `avatar` section for avatar-related settings.
         |
         | Acceptable image formats are tagged in the `media_formats` table.
@@ -85,25 +85,25 @@ return [
 
                 /*
                 * Resolution, in pixels, for image-type record thumbnails.
-                * 
+                *
                 * Images larger than this size in either dimension will be
                 * scaled down to fit within this bounding box, keeping the
                 * original aspect ratio.
-                * 
+                *
                 * Images smaller than this in both dimensions will not be
                 * scaled. Instead, the original image will be served.
-                * 
+                *
                 * The original files will not be altered.
                 */
                 'width'   => 200,
                 'height'  => 200,
-        
+
                 /*
                 * Image format for generated thumbnails.
-                * 
+                *
                 * Ensure that the server has whatever gd or imagick
                 * extensions are needed to support this format.
-                * 
+                *
                 * eg. `webp`, `jpeg`, `png`
                 */
                 'format'  => 'webp',
@@ -131,25 +131,25 @@ return [
 
                 /*
                 * Resolution, in pixels, for image-type record previews.
-                * 
+                *
                 * Images larger than this size in either dimension will be
                 * scaled down to fit within this bounding box, keeping the
                 * original aspect ratio.
-                * 
+                *
                 * Images smaller than this in both dimensions will not be
                 * scaled. Instead, the original image will be served.
-                * 
+                *
                 * The original files will not be altered.
                 */
                 'width'   => 1200,
                 'height'  => 1200,
-        
+
                 /*
                 * Image format for generated thumbnails.
-                * 
+                *
                 * Ensure that the server has whatever gd or imagick
                 * extensions are needed to support this format.
-                * 
+                *
                 * eg. `webp`, `jpeg`, `png`
                 */
                 'format'  => 'webp',
@@ -166,7 +166,7 @@ return [
             /*
              * If this setting is on, uploaded images will be inspected
              * to attempt to determine if they are truly animated or not.
-             * 
+             *
              * If this is off, all uploads with a MIME type tagged as
              * an animated format in `media_formats` will be considered
              * animated. However, `gif`s are sometimes static
@@ -176,7 +176,7 @@ return [
 
             /*
              * The maximum size (in bytes) for image uploads.
-             * 
+             *
              * This cannot be larger than `upload_max_filesize` and
              * `post_max_size` in php.ini/.htaccess/vhost.conf/etc
              */
@@ -200,11 +200,11 @@ return [
 
             /*
              * Determines if a thumbnail will be generated for
-             * the video. 
-             * 
+             * the video.
+             *
              * Video thumbnails are shown where ever image thumbnails
              * are also shown, such as the main search and tag pages.
-             * 
+             *
              * If turned off, a generic placeholder thumbnail will
              * be shown instead.
              */
@@ -213,8 +213,8 @@ return [
             /*
              * The percentage into the video where the thumbnail
              * should be grabbed.
-             * 
-             * For instance, a setting of `0.5` will grab the 
+             *
+             * For instance, a setting of `0.5` will grab the
              * thumbnail from 50% of the way into the video.
              */
             'thumbnail_position' => 0.1,
@@ -222,7 +222,7 @@ return [
             /*
              * Determines if a preview will be generated for
              * the video.
-             * 
+             *
              * Video previews are short, animated image formats
              * showing segments of the video. They are shown when
              * the user hovers over a video thumbnail.

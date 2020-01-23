@@ -13,13 +13,14 @@ class RealUserScope implements Scope
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @param  \Illuminate\Database\Eloquent\Model  $model
+     *
      * @return void
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where(function ($query) {
+        $builder->where(static function($query) {
             $query->where('system_account', false) // Don't return any system accounts.
-                  ->orWhere('anonymous_account', true); // Except for the anonymous account.
+                ->orWhere('anonymous_account', true); // Except for the anonymous account.
         });
     }
 }

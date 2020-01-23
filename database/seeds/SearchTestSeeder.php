@@ -267,7 +267,7 @@ class SearchTestSeeder extends Seeder
         {
                 $count = $service->recalculateAllRecordCounts($i, $batch_size);
                 
-                if($count != null)
+                if($count !== null)
                     echo "\r" . number_format($count) . " tag statistics calculated                         ";
         }
 
@@ -279,7 +279,7 @@ class SearchTestSeeder extends Seeder
         {
             $count = $service->recalculateAllTagCounts($i, $batch_size);
 
-            if($count != null)
+            if($count !== null)
                 echo "\r" . number_format($count) . " record statistics calculated                         ";
         }
 

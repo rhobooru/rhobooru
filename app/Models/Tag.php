@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Traits\UserAudits;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Traits\UserAudits;
 
 class Tag extends Model
 {
@@ -17,7 +17,7 @@ class Tag extends Model
      */
     protected $fillable = [
         'aliased_to_tag_id',
-        'name', 
+        'name',
         'description',
         'summary',
     ];
@@ -74,56 +74,56 @@ class Tag extends Model
      * Removed default eager loads from query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
+     *
      * @codeCoverageIgnore
      */
-    public function scopeNoEagerLoads($query){
+    public function scopeNoEagerLoads($query)
+    {
         return $query->setEagerLoads([]);
     }
 
-
-
-
-
-
-
     /**
-     * Performs the side-effect actions of aliasing this tag to another tag, 
+     * Performs the side-effect actions of aliasing this tag to another tag,
      * including moving records and correcting cached counts.
-     * 
-     * Called from TagObserver.updating(). This shouldn't need to be called manually!
+     *
+     * Called from TagObserver.updating(). This shouldn't need to be
+     * called manually!
      */
     public function doAliasSideEffects()
     {
         $tag_being_aliased = $this;
 
         // If our tag hasn't even had its alias updated, do nothing.
-        if(!$tag_being_aliased->isDirty('aliased_to_tag_id'))
+        if (! $tag_being_aliased->isDirty('aliased_to_tag_id')) {
             return;
+        }
 
-        $didHaveAlias = $tag_being_aliased->getOriginal('aliased_to_tag_id') != null;
-        $willHaveAlias = $tag_being_aliased->aliased_to_tag_id != null;
+        $didHaveAlias = $tag_being_aliased
+            ->getOriginal('aliased_to_tag_id') !== null;
+
+        $willHaveAlias = $tag_being_aliased->aliased_to_tag_id !== null;
 
         // If we're aliasing this tag...
-        if(!$didHaveAlias && $willHaveAlias)
-        {
+        if (! $didHaveAlias && $willHaveAlias) {
             $this->aliased_to->records()->attach($this->records()->pluck('id'));
 
             // Delete any shared tag_record rows belonging to this tag.
             $this->records()->detach();
         }
         // We're re-aliasing the tag...
-        else if ($didHaveAlias && $willHaveAlias)
-        {
+        //else if ($didHaveAlias && $willHaveAlias)
+        //{
             // Do nothing. This tag had no items associated with it before
             // so there's nothing to move or detach.
-        }
+        //}
         // We're un-aliasing the tag...
-        else if($didHaveAlias && !$willHaveAlias)
-        {
+        //else if($didHaveAlias && !$willHaveAlias)
+        //{
             // Do nothing. We can't know which items are supposed to belong
-            // to this tag now so any further work will need to be 
+            // to this tag now so any further work will need to be
             // done manually.
-        }
+        //}
     }
 }

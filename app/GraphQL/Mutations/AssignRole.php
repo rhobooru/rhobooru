@@ -2,7 +2,7 @@
 
 namespace App\GraphQL\Mutations;
 
-use \App\Models\User;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 
 class AssignRole
@@ -11,7 +11,8 @@ class AssignRole
      * Assign a role to a user.
      *
      * @param  mixed  $root
-     * @param  mixed[]  $args
+     * @param mixed  $args
+     *
      * @return bool
      */
     public function __invoke($root, array $args): bool

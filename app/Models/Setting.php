@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Scopes\SortedScope;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class Setting extends Eloquent implements Sortable
 {
@@ -49,7 +49,7 @@ class Setting extends Eloquent implements Sortable
     {
         return $this->belongsTo('App\Models\SettingGroup');
     }
-    
+
     /**
      * Scope for the sortable code.
      *

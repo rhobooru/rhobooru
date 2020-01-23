@@ -21,20 +21,10 @@ class ClearAllCache extends Command
     protected $description = 'Clears every cache imaginable.';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
+     *
      * @codeCoverageIgnore
      */
     public function handle()

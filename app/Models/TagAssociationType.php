@@ -8,7 +8,7 @@ class TagAssociationType extends Model
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
@@ -19,7 +19,7 @@ class TagAssociationType extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 
+        'name',
         'description',
     ];
 
