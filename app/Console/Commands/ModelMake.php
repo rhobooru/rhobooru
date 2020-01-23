@@ -10,7 +10,9 @@ class ModelMake extends ModelMakeCommand
      * Prefix default root namepsace with a folder.
      *
      * @param string $rootNamespace
+     *
      * @return string
+     *
      * @codeCoverageIgnore
      */
     protected function getDefaultNamespace($rootNamespace)

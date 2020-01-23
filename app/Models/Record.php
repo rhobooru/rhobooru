@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use \App\Helpers\ImageHelper;
-use App\Scopes\UploadedScope;
+use App\Exceptions\NotAuthenticatedException;
+use App\Helpers\ImageHelper;
 use App\Models\Traits\UserAudits;
-use Illuminate\Support\Facades\Auth;
+use App\Scopes\UploadedScope;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class Record extends Model
@@ -32,7 +33,7 @@ class Record extends Model
         'duration',
         'framerate',
         'record_type_id',
-        'content_rating_id'
+        'content_rating_id',
     ];
 
     /**
@@ -75,6 +76,7 @@ class Record extends Model
      * Scope a query to only include approved records.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeApproved($query)
@@ -86,6 +88,7 @@ class Record extends Model
      * Scope a query to only include unapproved records.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeNotApproved($query)
@@ -97,6 +100,7 @@ class Record extends Model
      * Scope a query to only include uploaded records.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUploadCompleted($query)
@@ -108,6 +112,7 @@ class Record extends Model
      * Scope a query to only include not uploaded records.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeNotUploadCompleted($query)
@@ -119,14 +124,21 @@ class Record extends Model
      * Removed default eager loads from query.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeNoEagerLoads($query){
+    public function scopeNoEagerLoads($query)
+    {
         return $query->setEagerLoads([]);
     }
 
-
-
+    /**
+     * Check if the given file matches this model's `md5`.
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
     public function verifyMD5(string $path): bool
     {
         $storedHash = ImageHelper::imageToMD5($path);
@@ -138,23 +150,20 @@ class Record extends Model
      * Processes an uploaded file for this Record.
      *
      * @param \Illuminate\Http\UploadedFile $file
+     *
      * @return string Path where file was stored
      */
     public function uploadFile(\Illuminate\Http\UploadedFile $file): string
     {
         // Make sure the user is logged in.
-        if(!Auth::check())
-        {
-            //throw new \Exception("Not authenticated");
+        if (! Auth::check()) {
+            throw new NotAuthenticatedException();
         }
 
         // Make sure the record isn't already uploaded.
-        if($this->upload_complete)
-        {
-            throw new \Exception("Record already marked as uploaded");
+        if ($this->upload_complete) {
+            throw new \Exception('Record already marked as uploaded');
         }
-
-
 
         // Build the paths and filenames.
         $filename = $this->md5;
@@ -162,10 +171,9 @@ class Record extends Model
         $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
 
         $staging_path = config('rhobooru.media.images.staging_path');
-        $final_path = config('rhobooru.media.images.originals.storage_path') . '/' . substr($this->md5, 0, 3);
-        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' .  substr($this->md5, 0, 3);
-        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' .  substr($this->md5, 0, 3);
-
+        $final_path = config('rhobooru.media.images.originals.storage_path') . '/' . $this->hshFolder;
+        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' .  $this->hshFolder;
+        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' .  $this->hshFolder;
 
         $full_staging_path = $staging_path . '/' . $filename;
         $full_staging_thumbnail_path = $staging_path . '/' . $thumbnail_name;
@@ -174,19 +182,14 @@ class Record extends Model
         $full_thumbnail_path = $thumbnail_path . '/' . $thumbnail_name;
         $full_preview_path = $preview_path . '/' . $preview_name;
 
-
-
         // Check if the file already exists.
         $file_exists_in_staging = Storage::exists($full_staging_path);
 
         // If it exists in staging, we may be racing with another upload
         // or retrying a failed upload.
-        if($file_exists_in_staging === true)
-        {
+        if ($file_exists_in_staging === true) {
             Storage::delete($full_staging_path);
         }
-
-
 
         // Save the file into the staging path.
         $file->storePubliclyAs($staging_path, $filename);
@@ -198,90 +201,61 @@ class Record extends Model
         $old_full_staging_path = $full_staging_path;
         $full_staging_path = $staging_path . '/' . $filename;
 
-
-
         // Check if the file already exists.
         $file_exists_in_staging = Storage::exists($full_staging_path);
 
         // If it exists in staging, we may be racing with another upload
         // or retrying a failed upload.
-        if($file_exists_in_staging === true)
-        {
+        if ($file_exists_in_staging === true) {
             Storage::delete($full_staging_path);
         }
 
         Storage::move($old_full_staging_path, $full_staging_path);
 
-
         $image = Image::make(Storage::path($full_staging_path));
-
-
 
         $file_exists_in_final = Storage::exists($full_final_path);
 
         // If it exists in the final path, we are uploading an MD5
         // duplicate.
-        if($file_exists_in_final === true)
-        {
-            throw new \Exception("File already exists for MD5");
+        if ($file_exists_in_final === true) {
+            throw new \Exception('File already exists for MD5');
         }
-
-
 
         // If the saved file's hash doesn't equal our
         // expected hash, the file may be corrupt.
-        if(!$this->verifyMD5(Storage::path($full_staging_path)))
-        {
+        if (! $this->verifyMD5(Storage::path($full_staging_path))) {
             Storage::delete($full_staging_path);
 
-            throw new \Exception("MD5 mismatch: File corrupted in transit to server.");
+            throw new \Exception('MD5 mismatch: File corrupted in transit to server.');
         }
 
         // Calculate the pHash of the saved file.
         $pHash = ImageHelper::imageToPHash(Storage::path($full_staging_path));
 
-        $similar_records = Record::whereRaw('BIT_COUNT(phash ^ ?) < 1', [$pHash])->pluck('id');
-
-        if($similar_records->isNotEmpty())
-        {
-            //Storage::delete($full_staging_path);
-
-            //throw new \Exception("Similar records: " . implode(', ', $similar_records->toArray()));
-        }
-
-
-
         $generated_thumbnail_path = ImageHelper::makeThumbnail(Storage::path($full_staging_path));
-        if($generated_thumbnail_path != null)
-        {
+        if ($generated_thumbnail_path !== null) {
             Storage::move($full_staging_thumbnail_path, $full_thumbnail_path);
         }
 
         $generated_preview_path = ImageHelper::makePreview(Storage::path($full_staging_path));
-        if($generated_preview_path != null)
-        {
+        if ($generated_preview_path !== null) {
             Storage::move($full_staging_preview_path, $full_preview_path);
         }
-
-
 
         // Move file from local staging to final storage.
         Storage::move($full_staging_path, $full_final_path);
 
         // If the moved file's hash doesn't equal our
         // expected hash, the file may be corrupt.
-        if(!$this->verifyMD5(Storage::path($full_final_path)))
-        {
+        if (! $this->verifyMD5(Storage::path($full_final_path))) {
             Storage::delete($full_final_path);
 
-            throw new \Exception("MD5 mismatch: File corrupted in transit to storage.");
+            throw new \Exception('MD5 mismatch: File corrupted in transit to storage.');
         }
 
-
-
         // Update the record.
-        try
-        {
+        try {
             $this->upload_complete = true;
             $this->phash = $pHash;
             $this->width = $image->width();
@@ -289,19 +263,30 @@ class Record extends Model
             $this->file_size = $image->filesize();
             $this->aspect_ratio = $this->width / $this->height;
             $this->save();
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $exception) {
             Storage::delete($full_final_path);
             Storage::delete($full_thumbnail_path);
             Storage::delete($full_preview_path);
 
-            throw $e;
+            throw $exception;
         }
 
-
-
         return $full_final_path;
+    }
+
+    /**
+     * Get the portion of the MD5 hash that corresponds
+     * to the stroage folder.
+     *
+     * @return string|null
+     */
+    public function getHashFolderAttribute(): ?string
+    {
+        if ($this->md5 === null) {
+            return null;
+        }
+
+        substr($this->md5, 0, 3);
     }
 
     /**
@@ -312,17 +297,14 @@ class Record extends Model
     public function getImageAttribute(): string
     {
         // Make sure the record is already uploaded.
-        if(!$this->upload_complete)
-        {
-            throw new \Exception("Record is not completely uploaded yet");
+        if (! $this->upload_complete) {
+            throw new \Exception('Record is not completely uploaded yet');
         }
-
-
 
         // Build the paths and filenames.
         $filename = $this->md5 . '.' . $this->file_extension;
 
-        return asset('storage/uploads/images/' . substr($this->md5, 0, 3) . '/' . $filename);
+        return asset("storage/uploads/images/{$this->hashFolder}/${filename}");
     }
 
     /**
@@ -333,20 +315,16 @@ class Record extends Model
     public function getThumbnailAttribute(): string
     {
         // Make sure the record is already uploaded.
-        if(!$this->upload_complete)
-        {
-            throw new \Exception("Record is not completely uploaded yet");
+        if (! $this->upload_complete) {
+            throw new \Exception('Record is not completely uploaded yet');
         }
 
-
-
         // Build the paths and filenames.
-        $filename = $this->md5 . '.' . $this->file_extension;
         $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
 
-        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' . substr($this->md5, 0, 3);
+        //$thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' . $this->hashFolder;
 
-        return asset('storage/uploads/thumbnails/' . substr($this->md5, 0, 3) . '/' . $thumbnail_name);
+        return asset("storage/uploads/thumbnails/{$this->hashFolder}/${thumbnail_name}");
     }
 
     /**
@@ -357,51 +335,48 @@ class Record extends Model
     public function getPreviewAttribute(): ?string
     {
         // Make sure the record is already uploaded.
-        if(!$this->upload_complete)
-        {
-            throw new \Exception("Record is not completely uploaded yet");
+        if (! $this->upload_complete) {
+            throw new \Exception('Record is not completely uploaded yet');
         }
 
-
-
         // Build the paths and filenames.
-        $filename = $this->md5 . '.' . $this->file_extension;
         $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
 
-        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' . substr($this->md5, 0, 3);
+        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' . $this->hashFolder;
 
-        if(!Storage::exists($preview_path . '/' . $preview_name))
-        {
+        if (! Storage::exists($preview_path . '/' . $preview_name)) {
             return null;
         }
 
-        return asset('storage/uploads/previews/' . substr($this->md5, 0, 3) . '/' . $preview_name);
+        return asset("storage/uploads/previews/{$this->hashFolder}/${preview_name}");
     }
 
     /**
      * Searches for records via query.
      *
      * @param  String  $query
+     *
      * @return \Illuminate\Database\Query\Builder
      */
     public function search($root, array $args, \Nuwave\Lighthouse\Schema\Context $context, \GraphQL\Type\Definition\ResolveInfo $resolveInfo)
     {
         $raw_query = trim($args['query']);
 
-        if(!$raw_query)
-        {
+        if (! $raw_query) {
             return Record::query();
         }
 
         $search = new \App\SearchQuery($raw_query);
 
-        $tag_ids = array_map(function($item){ return $item->tag_ids[0];}, $search->terms());
+        $tag_ids = array_map(static function($item) {
+            return $item->tag_ids[0];
+        }, $search->terms());
 
-        return Record::whereExists(function ($query) use($tag_ids) {
+        return Record::whereExists(static function($query) use ($tag_ids) {
             $query->select(\DB::raw(1))
-                  ->from('record_tag')
-                  ->whereRaw('record_tag.record_id = records.id')
-                  ->whereIn('record_tag.tag_id', $tag_ids);
+                ->from('record_tag')
+                ->whereRaw('record_tag.record_id = records.id')
+                ->whereIn('record_tag.tag_id', $tag_ids);
         });
     }
 
@@ -415,19 +390,11 @@ class Record extends Model
         $id = false;
         $phash = false;
 
-        if(array_key_exists('id', $args))
-        {
+        if (array_key_exists('id', $args)) {
             $id = $args['id'];
-        }
-        else if(array_key_exists('phash', $args) && is_numeric($args['phash']))
-        {
+            $phash = Record::findOrFail($id)->phash;
+        } elseif (array_key_exists('phash', $args) && is_numeric($args['phash'])) {
             $phash = $args['phash'];
-        }
-
-        if($id)
-        {
-            $record = Record::findOrFail($id);
-            $phash = $record->phash;
         }
 
         $query = Record::select('*')
@@ -435,8 +402,7 @@ class Record extends Model
             ->whereRaw('BIT_COUNT(phash ^ ?) < ?', [$phash, 20])
             ->orderBy('distance');
 
-        if($id)
-        {
+        if ($id) {
             $query->where('id', '!=', $id);
         }
 

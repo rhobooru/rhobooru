@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 $factory->define(Tag::class, function (Faker $faker) {
     $firstUserId = \App\Models\User::first();
-    if($firstUserId != null)
+    if($firstUserId !== null)
     {
         $firstUserId = $firstUserId->id;
     }

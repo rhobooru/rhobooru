@@ -8,11 +8,11 @@ class CreateRecordTypesTable extends Migration
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
-    
+
     /**
      * Run the migrations.
      *

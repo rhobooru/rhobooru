@@ -21,20 +21,10 @@ class ServeOptimized extends Command
     protected $description = 'Runs optimization steps before the `serve` command';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
+     *
      * @codeCoverageIgnore
      */
     public function handle()

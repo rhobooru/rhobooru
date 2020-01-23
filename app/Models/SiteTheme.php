@@ -8,25 +8,26 @@ class SiteTheme extends Model
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
-     * 
+     *
      * @var bool
      */
     protected $fillable = [
         'is_default',
-        'name', 
+        'name',
     ];
 
     /**
      * Scope a query to only the default item.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeDefault($query)

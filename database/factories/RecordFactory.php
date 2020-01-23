@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 $factory->define(Record::class, function (Faker $faker) {
     $defaultRecordTypeId = \App\Models\RecordType::first();
-    if($defaultRecordTypeId != null)
+    if($defaultRecordTypeId !== null)
     {
         $defaultRecordTypeId = $defaultRecordTypeId->id;
     }
 
     $defaultContentRatingId = \App\Models\ContentRating::first();
-    if($defaultContentRatingId != null)
+    if($defaultContentRatingId !== null)
     {
         $defaultContentRatingId = $defaultContentRatingId->id;
     }

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Scopes\SortedScope;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
-use App\Scopes\SortedScope;
 
 class SettingGroup extends Eloquent implements Sortable
 {
@@ -17,7 +17,7 @@ class SettingGroup extends Eloquent implements Sortable
      * @var array
      */
     protected $fillable = [
-        'name', 
+        'name',
         'description',
         'setting_group_id',
         'sort',
@@ -62,7 +62,7 @@ class SettingGroup extends Eloquent implements Sortable
     {
         return $this->hasMany('App\Models\SettingGroup');
     }
-    
+
     /**
      * Scope for the sortable code.
      *

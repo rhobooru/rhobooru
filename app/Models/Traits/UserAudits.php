@@ -2,8 +2,9 @@
 
 namespace App\Models\Traits;
 
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Attaches created_by, updated_by, and deleted_by to a model
@@ -14,57 +15,81 @@ trait UserAudits
     /**
      * Called by models that use this trait whenever their boot() method is run.
      */
-    public static function bootUserAudits() 
+    public static function bootUserAudits()
     {
-        // Update our *_by_user_id columns whenever a 
-        // timestamp column would be changed.
-
-        static::creating(function($model) {
-            $user_id = self::getUser();
-
-            if($model->created_by_user_id == null)
-                $model->created_by_user_id = $user_id;
-
-            if($model->updated_by_user_id == null)
-                $model->updated_by_user_id = $user_id;
+        static::creating(static function($model) {
+            self::assignCreatingUser($model);
         });
 
-        static::updating(function($model) {
-            $user_id = self::getUser();
-
-            $model->updated_by_user_id = $user_id;
+        static::updating(static function($model) {
+            self::assignUpdatingUser($model);
         });
 
-        // deleting doesn't actually save afterwards, so we need to set and save the new column values.
-        // However, we don't want to call updating erroneously, so we need to bypass the model
-        // and run a raw database query.
-        static::deleting(function($model) {
-            $user_id = self::getUser();
-
-            $query = $model->newQueryWithoutScopes()->where($model->getKeyName(), $model->getKey());
-
-            $columns = ['deleted_by_user_id' => $user_id];
-
-            $query->update($columns);
+        static::deleting(static function($model) {
+            self::assignDeletingUser($model);
         });
+    }
+
+    /**
+     * Assigns the current user as the created_by and updated_by user_id.
+     *
+     * @param object $model
+     *
+     * @return void
+     */
+    private static function assignCreatingUser($model)
+    {
+        $user_id = self::getUser();
+
+        $model->created_by_user_id = $model->created_by_user_id ?? $user_id;
+
+        $model->updated_by_user_id = $model->updated_by_user_id ?? $user_id;
+    }
+
+    /**
+     * Assigns the current user as the updated_by user_id.
+     *
+     * @param object $model
+     *
+     * @return void
+     */
+    private static function assignUpdatingUser($model)
+    {
+        $model->updated_by_user_id = self::getUser();
+    }
+
+    /**
+     * Assigns the current user as the deleted_by user_id.
+     *
+     * `deleting` doesn't actually save afterwards, so we need to set and save the new
+     * column values. However, we don't want to call updating erroneously, so we need
+     * to bypass the model and run a raw database query.
+     *
+     * @param object $model
+     *
+     * @return void
+     */
+    private static function assignDeletingUser($model)
+    {
+        $user_id = self::getUser();
+
+        $query = $model->newQueryWithoutScopes()
+            ->where($model->getKeyName(), $model->getKey());
+
+        $columns = ['deleted_by_user_id' => $user_id];
+
+        $query->update($columns);
     }
 
     /**
      * Retrieves the current user for auditing.
      *
-     * @return integer:null
+     * @return int|null
      */
     private static function getUser(): ?int
     {
-        // If the user is logged in...
-        if(Auth::guard('api')->check() || Auth::guard('web')->check())
-        {
-            // Return that user.
-            return Auth::id();
-        }
-
         // Else, return the anonymous user id.
-        return config('rhobooru.users.anonymous_user_id');
+        return Auth::id() ?? config('rhobooru.users.anonymous_user_id');
     }
 
     /**
@@ -78,9 +103,10 @@ trait UserAudits
     protected function addFillableFields()
     {
         // Make sure code can manually set these values, if desired.
-        array_push($this->fillable, 
-            'created_by_user_id', 
-            'updated_by_user_id', 
+        array_push(
+            $this->fillable,
+            'created_by_user_id',
+            'updated_by_user_id',
             'deleted_by_user_id'
         );
     }
@@ -114,22 +140,20 @@ trait UserAudits
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed                                  $user
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeCreatedBy($query, $user)
     {
-        if(is_numeric($user))
-        {
+        if (is_numeric($user)) {
             return $query->where('created_by_user_id', $user);
         }
-        else if(is_a($user, User::class))
-        {
+
+        if (is_a($user, User::class)) {
             return $query->where('created_by_user_id', $user->id);
         }
-        else
-        {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
-        }
+
+        throw new ModelNotFoundException('Invalid parameter `user`');
     }
 
     /**
@@ -137,22 +161,20 @@ trait UserAudits
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed                                  $user
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUpdatedBy($query, $user)
     {
-        if(is_numeric($user))
-        {
+        if (is_numeric($user)) {
             return $query->where('updated_by_user_id', $user);
         }
-        else if(is_a($user, User::class))
-        {
+
+        if (is_a($user, User::class)) {
             return $query->where('updated_by_user_id', $user->id);
         }
-        else
-        {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
-        }
+
+        throw new ModelNotFoundException('Invalid parameter `user`');
     }
 
     /**
@@ -160,21 +182,21 @@ trait UserAudits
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed                                  $user
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeDeletedBy($query, $user)
     {
-        if(is_numeric($user))
-        {
-            return $query->withTrashed()->where('deleted_by_user_id', $user);
+        if (is_numeric($user)) {
+            return $query->withTrashed()
+                ->where('deleted_by_user_id', $user);
         }
-        else if(is_a($user, User::class))
-        {
-            return $query->withTrashed()->where('deleted_by_user_id', $user->id);
+
+        if (is_a($user, User::class)) {
+            return $query->withTrashed()
+                ->where('deleted_by_user_id', $user->id);
         }
-        else
-        {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Invalid parameter `user`");
-        }
+
+        throw new ModelNotFoundException('Invalid parameter `user`');
     }
 }

@@ -8,7 +8,7 @@ class RecordType extends Model
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
@@ -20,21 +20,23 @@ class RecordType extends Model
      */
     protected $fillable = [
         'requires_player_controls',
-        'name', 
+        'name',
         'description',
     ];
 
     /**
      * Get the records that belong to this record type.
      */
-    public function records(){
+    public function records()
+    {
         return $this->hasMany('App\Models\Record');
     }
 
     /**
      * Get the media formats that belong to this record type.
      */
-    public function media_formats(){
+    public function media_formats()
+    {
         return $this->hasMany('App\Models\MediaFormat');
     }
 
@@ -42,6 +44,7 @@ class RecordType extends Model
      * Scope a query to the items that require media controls.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeRequiresMediaControls($query)

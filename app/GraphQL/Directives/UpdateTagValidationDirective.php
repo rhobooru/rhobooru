@@ -11,6 +11,7 @@ class UpdateTagValidationDirective extends ValidationDirective
      * Name of the directive.
      *
      * @return string
+     *
      * @codeCoverageIgnore
      */
     public function name(): string
@@ -19,7 +20,9 @@ class UpdateTagValidationDirective extends ValidationDirective
     }
 
     /**
-     * @return mixed[]
+     * Validation rules.
+     *
+     * @return array
      */
     public function rules(): array
     {

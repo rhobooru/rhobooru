@@ -7,19 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class AccessType extends Model
 {
     /**
-     * These constants are the valid values for 
+     * These constants are the valid values for
      * the `access_types`.`static_name` field.
-     * 
+     *
      * They should be used for business logic purposes.
      */
-    const PUBLIC_ACCESS     = 'public';
-    const UNLISTED_ACCESS   = 'unlisted';
-    const FRIENDS_ACCESS    = 'friends';
-    const PRIVATE_ACCESS    = 'private';
-    
+    public const PUBLIC_ACCESS = 'public';
+    public const UNLISTED_ACCESS = 'unlisted';
+    public const FRIENDS_ACCESS = 'friends';
+    public const PRIVATE_ACCESS = 'private';
+
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
@@ -31,14 +31,15 @@ class AccessType extends Model
      */
     protected $fillable = [
         'static_name',
-        'name', 
+        'name',
         'description',
     ];
 
     /**
      * Get the folders that belong to this access type.
      */
-    public function folders(){
+    public function folders()
+    {
         return $this->hasMany('App\Models\Folder');
     }
 
@@ -46,6 +47,7 @@ class AccessType extends Model
      * Get the public access type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublic($query)
@@ -57,6 +59,7 @@ class AccessType extends Model
      * Get the unlisted access type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeUnlisted($query)
@@ -68,6 +71,7 @@ class AccessType extends Model
      * Get the friends access type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFriends($query)
@@ -79,6 +83,7 @@ class AccessType extends Model
      * Get the private access type.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePrivate($query)

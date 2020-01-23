@@ -9,22 +9,14 @@ use Laravel\Passport\Passport;
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The policy mappings for the application.
-     *
-     * @var array
-     */
-    protected $policies = [
-    ];
-
-    /**
      * Register any authentication / authorization services.
      *
      * @return void
      */
     public function boot()
     {
-        Gate::guessPolicyNamesUsing(function ($modelClass) {
-            return 'App\\Policies\\'.class_basename($modelClass).'Policy';
+        Gate::guessPolicyNamesUsing(static function($modelClass) {
+            return 'App\\Policies\\' . class_basename($modelClass) . 'Policy';
         });
 
         $this->registerPolicies();

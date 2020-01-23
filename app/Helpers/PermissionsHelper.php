@@ -3,13 +3,12 @@
 namespace App\Helpers;
 
 use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use \Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionsHelper
 {
     public static function clearPermissionsCache()
-    {   
+    {
         // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
@@ -20,10 +19,8 @@ class PermissionsHelper
 
         $permissions = \Config::get('permissions');
 
-        foreach($permissions as $group => $group_permissions)
-        {
-            foreach($group_permissions as $action)
-            {
+        foreach ($permissions as $group => $group_permissions) {
+            foreach ($group_permissions as $action) {
                 Permission::create(['name' => $group . '.' . $action]);
             }
         }

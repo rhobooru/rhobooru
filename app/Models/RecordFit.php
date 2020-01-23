@@ -8,7 +8,7 @@ class RecordFit extends Model
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
@@ -20,7 +20,7 @@ class RecordFit extends Model
      */
     protected $fillable = [
         'is_default',
-        'name', 
+        'name',
         'description',
         'id_default',
     ];
@@ -29,6 +29,7 @@ class RecordFit extends Model
      * Scope a query to only the default item.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeDefault($query)

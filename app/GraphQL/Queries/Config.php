@@ -4,7 +4,7 @@ namespace App\GraphQL\Queries;
 
 class Config
 {
-    public function __invoke(): Array
+    public function __invoke(): array
     {
         return config('rhobooru');
     }

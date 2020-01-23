@@ -13,10 +13,10 @@ jobs:
       run: |
         openssl genrsa -out storage/oauth-private.key 4096
         openssl rsa -in storage/oauth-private.key -pubout > storage/oauth-public.key
-      
+
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.ci', '.env');"
-      
+
     - name: Get Composer Cache Directory
       id: composer-cache
       run: |
@@ -28,13 +28,13 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
-      
+
     - name: Install dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
-      
+
     - name: Generate application key
       run: php artisan key:generate
-        
+
     - name: Execute tests
       run: phpdbg -qrr -dmemory_limit=4G ./vendor/bin/phpunit -c phpunit-ci.xml
 
@@ -44,3 +44,7 @@ jobs:
         file: ./clover.xml
         flags: unittests
         fail_ci_if_error: true
+
+    - uses: stefanzweifel/laravel-phpinsights-action@v1.0.0
+      with:
+        args: -v --min-quality=80 --min-complexity=80 --min-architecture=80 --min-style=80

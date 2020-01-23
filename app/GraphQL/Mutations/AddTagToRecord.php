@@ -2,9 +2,8 @@
 
 namespace App\GraphQL\Mutations;
 
-use \App\Models\Tag;
-use \App\Models\Record;
-use Spatie\Permission\Models\Role;
+use App\Models\Record;
+use App\Models\Tag;
 
 class AddTagToRecord
 {
@@ -12,7 +11,8 @@ class AddTagToRecord
      * Add a tag to a record.
      *
      * @param  mixed  $root
-     * @param  mixed[]  $args
+     * @param  array  $args
+     *
      * @return \App\Models\Record
      */
     public function __invoke($root, array $args): Record
@@ -23,9 +23,8 @@ class AddTagToRecord
         $tag = Tag::findOrFail($tag_id);
         $record = Record::findOrFail($record_id);
 
-        if($record->tags()->where('id', $tag_id)->exists())
-        {
-            throw new \Exception("Tag ($tag_id) already exists for Record ($record_id).");
+        if ($record->tags()->where('id', $tag_id)->exists()) {
+            throw new \Exception("Tag (${tag_id}) already exists for Record (${record_id}).");
         }
 
         $record->tags()->attach($tag);

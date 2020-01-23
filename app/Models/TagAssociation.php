@@ -8,7 +8,7 @@ class TagAssociation extends Model
 {
     /**
      * Whether to allow created_at and updated_at.
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
@@ -52,11 +52,12 @@ class TagAssociation extends Model
      * Scope a query to the requested TagAssociationType.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  int                                    $tag_association_type_id
+     * @param  int                                    $id
+     *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeAssociationType($query, $tag_association_type_id)
+    public function scopeAssociationType($query, $id)
     {
-        return $query->where('tag_association_type_id', $tag_association_type_id);
+        return $query->where('tag_association_type_id', $id);
     }
 }

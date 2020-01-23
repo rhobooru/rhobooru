@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\ServiceProvider;
 
 class BlueprintMacroServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,6 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**
@@ -24,13 +23,24 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Blueprint::macro('timestampUsers', function (bool $nullable = false) { 
-            if($nullable === true)
-            {
+        $this->registerTimestampUsers();
+
+        $this->registerSoftDeletesUser();
+    }
+
+    /**
+     * Adds *_by_user_id columns to a table.
+     *
+     * @param bool $nullable If the created_by_user_id field should be nullable.
+     *
+     * @return void
+     */
+    public function registerTimestampUsers()
+    {
+        Blueprint::macro('timestampUsers', function(bool $nullable = false) {
+            if ($nullable === true) {
                 $this->unsignedbigInteger('created_by_user_id')->nullable();
-            }
-            else
-            {
+            } else {
                 $this->unsignedbigInteger('created_by_user_id');
             }
 
@@ -42,8 +52,16 @@ class BlueprintMacroServiceProvider extends ServiceProvider
             $this->index('created_by_user_id');
             $this->index('updated_by_user_id');
         });
+    }
 
-        Blueprint::macro('softDeletesUser', function () { 
+    /**
+     * Adds deleted_by_user_id column to a table.
+     *
+     * @return void
+     */
+    public function registerSoftDeletesUser()
+    {
+        Blueprint::macro('softDeletesUser', function() {
             $this->unsignedbigInteger('deleted_by_user_id')->nullable();
 
             $this->foreign('deleted_by_user_id')->references('id')->on('users');

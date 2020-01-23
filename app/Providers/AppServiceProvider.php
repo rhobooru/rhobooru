@@ -12,7 +12,6 @@ class AppServiceProvider extends ServiceProvider
      * @var array
      */
     public $bindings = [
-        //
     ];
 
     /**
@@ -22,7 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
     }
 
     /**

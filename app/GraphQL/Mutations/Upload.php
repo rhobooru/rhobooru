@@ -2,7 +2,7 @@
 
 namespace App\GraphQL\Mutations;
 
-use \App\Models\Record;
+use App\Models\Record;
 
 class Upload
 {
@@ -10,8 +10,9 @@ class Upload
      * Upload a file, store it on the server and return the path.
      *
      * @param  mixed  $root
-     * @param  mixed[]  $args
-     * @return string|null
+     * @param mixed  $args
+     *
+     * @return string|null  Path of the uploaded file.
      */
     public function __invoke($root, array $args): ?string
     {
@@ -19,8 +20,6 @@ class Upload
         $file = $args['file'];
         $record = Record::withoutGlobalScopes()->find($args['id']);
 
-        $path = $record->uploadFile($file);
-
-        return $path;
+        return $record->uploadFile($file);
     }
 }
