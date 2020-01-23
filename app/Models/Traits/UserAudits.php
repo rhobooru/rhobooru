@@ -17,11 +17,17 @@ trait UserAudits
      */
     public static function bootUserAudits()
     {
-        static::creating(static fn($model) => self::assignCreatingUser($model));
+        static::creating(static function($model) {
+            self::assignCreatingUser($model);
+        });
 
-        static::updating(static fn($model) => self::assignUpdatingUser($model));
+        static::updating(static function($model) {
+            self::assignUpdatingUser($model);
+        });
 
-        static::deleting(static fn($model) => self::assignDeletingUser($model));
+        static::deleting(static function($model) {
+            self::assignDeletingUser($model);
+        });
     }
 
     /**
