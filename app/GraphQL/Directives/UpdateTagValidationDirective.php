@@ -28,7 +28,11 @@ class UpdateTagValidationDirective extends ValidationDirective
     {
         return [
             'id' => ['required'],
-            'name' => ['sometimes', Rule::unique('tags', 'name')->ignore($this->args['id'], 'id')],
+            'name' => [
+                'sometimes',
+                Rule::unique('tags', 'name')
+                    ->ignore($this->args['id'], 'id'),
+            ],
         ];
     }
 }

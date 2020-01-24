@@ -7,24 +7,24 @@ class EnvironmentHelper
     /**
      * Persists a KV pair in the .env file.
      *
-     * @param string $envKey
-     * @param string $envValue
+     * @param string $key
+     * @param string $value
      *
      * @return void
      */
-    public static function saveEnvironmentValue(string $envKey, string $envValue)
+    public static function saveEnvironmentValue(string $key, string $value)
     {
-        $envFile = app()->environmentFilePath();
-        $str = file_get_contents($envFile);
+        $env_file = app()->environmentFilePath();
+        $str = file_get_contents($env_file);
 
-        $str .= "\n"; // In case the searched variable is in the last line without \n
-        $keyPosition = strpos($str, "{$envKey}=");
-        $endOfLinePosition = strpos($str, PHP_EOL, $keyPosition);
-        $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);
-        $str = str_replace($oldLine, "{$envKey}={$envValue}", $str);
+        $str .= "\n"; // In case the key is the last line without \n
+        $key_position = strpos($str, "{$key}=");
+        $end_of_line_position = strpos($str, PHP_EOL, $key_position);
+        $old_line = substr($str, $key_position, $end_of_line_position - $key_position);
+        $str = str_replace($old_line, "{$key}={$value}", $str);
         $str = substr($str, 0, -1);
 
-        $handle = fopen($envFile, 'w');
+        $handle = fopen($env_file, 'w');
         fwrite($handle, $str);
         fclose($handle);
     }
@@ -45,27 +45,19 @@ class EnvironmentHelper
      * Checks if the max allowed upload filesize in
      * the php environment is configured correctly.
      *
-     * @return void
+     * @return bool
      */
-    public static function verifyMaxUploadSize()
+    public static function verifyMaxUploadSize(): bool
     {
         $max_post_size;
         $max_upload_size;
 
         try {
-            $max_post_size = ini_get('post_max_size');
+            $max_post_size = HumanReadableHelper::toBytes(ini_get('post_max_size'));
+            $max_upload_size = HumanReadableHelper::toBytes(ini_get('upload_max_filesize'));
         } catch (\Exception $exception) {
-            throw new \Exception('Could not read `post_max_size`', 0, $exception);
+            throw new \Exception('Could not read PHP configuration', 0, $exception);
         }
-
-        try {
-            $max_upload_size = ini_get('upload_max_filesize');
-        } catch (\Exception $exception) {
-            throw new \Exception('Could not read `upload_max_filesize`', 0, $exception);
-        }
-
-        $max_post_size = HumanReadableHelper::toBytes($max_post_size);
-        $max_upload_size = HumanReadableHelper::toBytes($max_upload_size);
 
         if ($max_post_size < $max_upload_size) {
             throw new \Exception('`upload_max_filesize` is set higher than `post_max_size`. This is not allowed.');

@@ -19,8 +19,10 @@ class RealUserScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         $builder->where(static function($query) {
-            $query->where('system_account', false) // Don't return any system accounts.
-                ->orWhere('anonymous_account', true); // Except for the anonymous account.
+            // Don't return any system accounts,
+            // except for the anonymous account.
+            $query->where('system_account', false)
+                ->orWhere('anonymous_account', true);
         });
     }
 }

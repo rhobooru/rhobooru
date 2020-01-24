@@ -7,16 +7,34 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 
-class Setting extends Eloquent implements Sortable
+class RecordFetch extends Eloquent implements Sortable
 {
     use SortableTrait;
 
     /**
-     * The attributes that are not mass assignable.
+     * Whether to allow created_at and updated_at.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var bool
+     */
+    protected $table = 'record_fetches';
+
+    /**
+     * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $guarded = [];
+    protected $fillable = [
+        'is_default',
+        'name',
+        'description',
+    ];
 
     /**
      * Sortable confg.
@@ -43,23 +61,14 @@ class Setting extends Eloquent implements Sortable
     }
 
     /**
-     * Get the group to which this group belongs.
-     */
-    public function setting_group()
-    {
-        return $this->belongsTo('App\Models\SettingGroup');
-    }
-
-    /**
-     * Scope for the sortable code.
+     * Scope a query to only the default item.
      *
-     * @return void
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function buildSortQuery()
+    public function scopeDefault($query)
     {
-        // Retrict sort logic to just this item's siblings.
-        return static::query()
-            ->where('system_setting', $this->system_setting === 1)
-            ->where('setting_group_id', $this->setting_group_id);
+        return $query->where('is_default', true)->take(1);
     }
 }

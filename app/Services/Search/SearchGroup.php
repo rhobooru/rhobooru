@@ -6,30 +6,46 @@ use Illuminate\Support\Collection;
 
 class SearchGroup
 {
-    public const MODE_AND = 'and';
+    public const AND = 'and';
 
-    public const MODE_OR = 'or';
+    public const OR = 'or';
 
     /**
      * The SearchTerms of this groups.
      *
      * @var array
      */
-    public $terms;
+    protected $terms;
 
     /**
      * Nested SearchGroups within this group.
      *
      * @var array
      */
-    public $groups;
+    protected $groups;
 
     /**
      * Whether this is an AND or an OR group.
      *
      * @var string
      */
-    public $conjunction = SearchGroup::MODE_AND;
+    protected $conjunction = SearchGroup::AND;
+
+    public function __get($name)
+    {
+        if (isset($this->$name)) {
+            return $this->$name;
+        }
+    }
+
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'conjunction':
+                $this->$name = $value;
+                break;
+        }
+    }
 
     /**
      * Returns a flat array of all terms in this group, recursively.
@@ -40,10 +56,8 @@ class SearchGroup
     {
         $terms = $this->terms ?? [];
 
-        if ($this->groups) {
-            foreach ($this->groups as $group) {
-                $terms = array_merge($terms, $group->allTerms());
-            }
+        foreach ($this->groups as $group) {
+            $terms = array_merge($terms, $group->allTerms());
         }
 
         return $terms;
@@ -58,16 +72,12 @@ class SearchGroup
      */
     public function assignTagIds(Collection $tag_ids)
     {
-        if ($this->terms) {
-            foreach ($this->terms as $term) {
-                $term->tag_ids[] = $tag_ids->firstWhere('name', $term->phrase)->id;
-            }
+        foreach ($this->terms as $term) {
+            $term->tag_ids[] = $tag_ids->firstWhere('name', $term->phrase)->id;
         }
 
-        if ($this->groups) {
-            foreach ($this->groups as $group) {
-                $group->assignTagIds($tag_ids);
-            }
+        foreach ($this->groups as $group) {
+            $group->assignTagIds($tag_ids);
         }
     }
 }

@@ -74,38 +74,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the users's preferred date format.
-     */
-    // public function date_format(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\DateFormat');
-    // }
-
-    /**
-     * Get the users's preferred site theme.
-     */
-    // public function site_theme(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\SiteTheme');
-    // }
-
-    /**
-     * Get the users's preferred record fit.
-     */
-    // public function record_fit(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\RecordFit');
-    // }
-
-    /**
-     * Get the users's preferred max content rating.
-     */
-    // public function max_content_rating(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
-    // }
-
-    /**
      * Get the user's folders.
      */
     public function folders(): HasMany
@@ -216,7 +184,7 @@ class User extends Authenticatable
      */
     public function createUserSettings()
     {
-        // TODO
+        // TODO: Implement
     }
 
     /**
@@ -230,11 +198,11 @@ class User extends Authenticatable
             return $this->favoritesFolder->first();
         }
 
-        return \App\Models\Folder::create([
+        return Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::favorites()->first()->id,
-            'access_type_id' => \App\Models\AccessType::public()->first()->id,
+            'folder_type_id' => FolderType::favorites()->first()->id,
+            'access_type_id' => AccessType::public()->first()->id,
             'name' => 'Favorites',
         ]);
     }
@@ -250,11 +218,11 @@ class User extends Authenticatable
             return $this->quickListFolder->first();
         }
 
-        return \App\Models\Folder::create([
+        return Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::quickList()->first()->id,
-            'access_type_id' => \App\Models\AccessType::private()->first()->id,
+            'folder_type_id' => FolderType::quickList()->first()->id,
+            'access_type_id' => AccessType::private()->first()->id,
             'name' => 'Quick List',
         ]);
     }
@@ -279,12 +247,12 @@ class User extends Authenticatable
     }
 
     /**
-     * Force deletes all the related models for a user (eg. settings and folders).
+     * Force deletes all the related models for a user
+     * (eg. settings and folders).
      */
     public function forceDeleteUserRelationships()
     {
-        // Delete the user's settings.
-        // TODO
+        // TODO: Delete the user's settings.
 
         // Delete the user's folders.
         $this->folders()->forceDelete();

@@ -17,9 +17,8 @@ class DefaultValuesSeeder extends Seeder
      */
     public function run()
     {
-        $this->seedSiteThemes();
-        $this->seedDateFormats();
         $this->seedRecordFits();
+        $this->seedRecordFetches();
         $this->seedRecordTypes();
         $this->seedMediaFormats();
         $this->seedContentTypes();
@@ -27,7 +26,8 @@ class DefaultValuesSeeder extends Seeder
         $this->seedFolderTypes();
         $this->seedTagAssociationTypes();
         $this->seedSettingGroups();
-        $this->seedSettings();
+        $this->seedSystemSettings();
+        $this->seedUserSettings();
 
         // Seed permissions, then roles, then users.
         $this->seedRolesAndPermissions();
@@ -261,43 +261,6 @@ class DefaultValuesSeeder extends Seeder
         ]);
     }
 
-    public function seedSiteThemes()
-    {
-        \App\Models\SiteTheme::create([
-            'is_default' => true,
-            'name' => 'Dark',
-        ]);
-
-        \App\Models\SiteTheme::create([
-            'is_default' => false,
-            'name' => 'Light',
-        ]);
-    }
-
-    public function seedDateFormats()
-    {
-        \App\Models\DateFormat::create([
-            'is_default' => true,
-            'format' => 'yyyy-MM-dd',
-        ]);
-
-        \App\Models\DateFormat::create([
-            'format' => 'MM/dd/yyyy',
-        ]);
-
-        \App\Models\DateFormat::create([
-            'format' => 'MMM dd, yyyy',
-        ]);
-
-        \App\Models\DateFormat::create([
-            'format' => 'dd MMM, yyyy',
-        ]);
-
-        \App\Models\DateFormat::create([
-            'format' => 'dd MMMM, yyyy',
-        ]);
-    }
-
     public function seedRecordFits()
     {
         \App\Models\RecordFit::create([
@@ -328,6 +291,27 @@ class DefaultValuesSeeder extends Seeder
             'is_default' => false,
             'name' => 'No Fit',
             'description' => 'Displays media at its native size.',
+        ]);
+    }
+
+    public function seedRecordFetches()
+    {
+        \App\Models\RecordFetch::create([
+            'is_default' => true,
+            'name' => 'Always fetch previews',
+            'description' => 'Lowest data usage, lowest image quality. Always fetches resized previews and allows you to request the original, if you want.',
+        ]);
+
+        \App\Models\RecordFetch::create([
+            'is_default' => false,
+            'name' => 'Fetch previews and auto-upgrade',
+            'description' => 'Best experience, highest data usage. Fetches resized previews and automatically upgrades it to the original image in the background.',
+        ]);
+
+        \App\Models\RecordFetch::create([
+            'is_default' => false,
+            'name' => 'Always fetch originals',
+            'description' => 'Best image quality, slowest. Always fetches the original images but will take longer before you see anything.',
         ]);
     }
 
@@ -411,7 +395,7 @@ class DefaultValuesSeeder extends Seeder
     {
         // Create anonymous user.
         //
-        // Used for audits and permissions when users aren't. 
+        // Used for audits and permissions when users aren't.
         // authenticated. Cannot be deleted from the system.
         $user = \App\Models\User::create([
             'username' => 'anonymous',
@@ -420,14 +404,14 @@ class DefaultValuesSeeder extends Seeder
             'tag.view any',
             'record.view any',
         ]);
-    
+
         $user->system_account = true;
         $user->anonymous_account = true;
         $user->save();
 
         // Create system user.
         //
-        // Used for non-import background tasks such as 
+        // Used for non-import background tasks such as
         // stat recalculations and data pruning.
         //
         // Should never be logged into manually.
@@ -435,7 +419,7 @@ class DefaultValuesSeeder extends Seeder
             'username' => 'System',
             'password' => Hash::make(Str::random(255)),
         ])->givePermissionTo(Permission::all());
-    
+
         $user->system_account = true;
         $user->save();
 
@@ -450,7 +434,7 @@ class DefaultValuesSeeder extends Seeder
             'username' => 'rhobot',
             'password' => Hash::make(Str::random(255)),
         ])->assignRole('Automation');
-    
+
         $user->system_account = true;
         $user->save();
 
@@ -483,13 +467,13 @@ class DefaultValuesSeeder extends Seeder
             'name' => 'Admin'
         ])->givePermissionTo(Permission::all());
 
-        // The moderator role is for users that can 
+        // The moderator role is for users that can
         // review other users' actions for approval
         // or denial.
         Role::create([
             'name' => 'Moderator'
         ])->givePermissionTo([
-            'tag.create', 
+            'tag.create',
         ]);
 
         // The tag curator role is for users with extra
@@ -502,7 +486,7 @@ class DefaultValuesSeeder extends Seeder
         Role::create([
             'name' => 'Tag Curator'
         ])->givePermissionTo([
-            'tag.create', 
+            'tag.create',
         ]);
 
         // The translator role is for users with extra
@@ -525,16 +509,19 @@ class DefaultValuesSeeder extends Seeder
          */
 
         $users = SettingGroup::create([
+            'key' => 'system.users',
             'name' => 'Users',
             'description' => 'Settings related to user accounts.',
         ]);
 
         $media = SettingGroup::create([
+            'key' => 'system.media',
             'name' => 'Media',
             'description' => 'Settings related to processing of uploaded media.',
         ]);
 
             $images = SettingGroup::create([
+                'key' => 'system.media.images',
                 'name' => 'Images',
                 'description' => 'Settings related to processing of uploaded images.<br><br>
                 See the `avatar` section for avatar-related settings.<br><br>
@@ -543,12 +530,14 @@ class DefaultValuesSeeder extends Seeder
             ]);
 
                 $originals = SettingGroup::create([
+                    'key' => 'system.media.images.originals',
                     'name' => 'Originals',
                     'description' => 'Original files are the unmodified uploads.',
                     'setting_group_id' => $images->id,
                 ]);
 
                 $thumbnails = SettingGroup::create([
+                    'key' => 'system.media.images.thumbnails',
                     'name' => 'Thumbnails',
                     'description' => 'Thumbnails are the images shown on the record listing pages.<br>
                     eg. main search, folder views, tag pages',
@@ -556,6 +545,7 @@ class DefaultValuesSeeder extends Seeder
                 ]);
 
                 $previews = SettingGroup::create([
+                    'key' => 'system.media.images.previews',
                     'name' => 'Previews',
                     'description' => 'Previews are reasonably-sized versions of images that save bandwidth without much loss in quality.<br>
                     eg. record pages',
@@ -563,6 +553,7 @@ class DefaultValuesSeeder extends Seeder
                 ]);
 
             $videos = SettingGroup::create([
+                'key' => 'system.media.videos',
                 'name' => 'Videos',
                 'description' => 'Settings related to processing of uploaded videos.<br><br>
                 Acceptable video formats are tagged in the `media_formats` table.',
@@ -574,15 +565,104 @@ class DefaultValuesSeeder extends Seeder
         /**
          * User Setting Groups
          */
+
+        $display = SettingGroup::create([
+            'key' => 'user.display',
+            'name' => 'Display',
+            'description' => 'Settings related to the display of the site and data.',
+        ]);
+
+        $privacy = SettingGroup::create([
+            'key' => 'user.privacy',
+            'name' => 'Privacy',
+            'description' => 'Settings related to your data\'s visibility.',
+        ]);
+
+        $moderation = SettingGroup::create([
+            'key' => 'user.moderation',
+            'name' => 'Moderation',
+            'description' => 'Settings related to site and content moderation.',
+        ]);
+
+        $records = SettingGroup::create([
+            'key' => 'user.records',
+            'name' => 'Records',
+            'description' => 'Settings related to viewing and manipulating records (images, videos, etc).',
+        ]);
+
+        $forum = SettingGroup::create([
+            'key' => 'user.forum',
+            'name' => 'Forum',
+            'description' => 'Settings related to viewing and manipulating forums, threads, and posts.',
+        ]);
+
+            $threads = SettingGroup::create([
+                'key' => 'user.forum.threads',
+                'name' => 'Threads',
+                'description' => 'Settings related to viewing and manipulating threads.',
+                'setting_group_id' => $forum->id,
+            ]);
+
+            $posts = SettingGroup::create([
+                'key' => 'user.forum.posts',
+                'name' => 'Posts',
+                'description' => 'Settings related to viewing and manipulating posts.',
+                'setting_group_id' => $forum->id,
+            ]);
+
+        $notifications = SettingGroup::create([
+            'key' => 'user.notifications',
+            'name' => 'Notifications',
+            'description' => 'Settings related to notifications and emails.',
+        ]);
+
+            $record_notifications = SettingGroup::create([
+                'key' => 'user.notifications.records',
+                'name' => 'Records',
+                'description' => 'Settings related to notifications and emails about records.',
+                'setting_group_id' => $notifications->id,
+            ]);
+
+            $friend_notifications = SettingGroup::create([
+                'key' => 'user.notifications.friends',
+                'name' => 'Friends',
+                'description' => 'Settings related to notifications and emails about friends.',
+                'setting_group_id' => $notifications->id,
+            ]);
+
+            $comment_notifications = SettingGroup::create([
+                'key' => 'user.notifications.comments',
+                'name' => 'Comments',
+                'description' => 'Settings related to notifications and emails about comments and posts.',
+                'setting_group_id' => $notifications->id,
+            ]);
+
+            $dm_notifications = SettingGroup::create([
+                'key' => 'user.notifications.dms',
+                'name' => 'DMs',
+                'description' => 'Settings related to notifications and emails about DMs.',
+                'setting_group_id' => $notifications->id,
+            ]);
+
+            $moderation_notifications = SettingGroup::create([
+                'key' => 'user.notifications.moderation',
+                'name' => 'Moderation',
+                'description' => 'Settings related to notifications and emails about moderator actions.',
+                'setting_group_id' => $notifications->id,
+            ]);
+
+            $following_notifications = SettingGroup::create([
+                'key' => 'user.notifications.following',
+                'name' => 'Following',
+                'description' => 'Settings related to notifications and emails about users you follow.',
+                'setting_group_id' => $notifications->id,
+            ]);
     }
 
-    public function seedSettings()
+    public function seedSystemSettings()
     {
-        /**
-         * System Setting Groups
-         */
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Users')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.users')->first()->id,
             'system_setting' => true,
             'key' => 'anonymous_user_id',
             'name' => 'Anonymous User',
@@ -597,7 +677,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'staging_path',
             'name' => 'Staging Path',
@@ -607,7 +687,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'determine_if_animated',
             'name' => 'Determine If Animated',
@@ -618,7 +698,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Images')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'max_file_size',
             'name' => 'Max File Size',
@@ -631,7 +711,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Originals')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.originals')->first()->id,
             'system_setting' => true,
             'key' => 'original_storage_path',
             'name' => 'Storage Path',
@@ -641,7 +721,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
             'system_setting' => true,
             'key' => 'thumbnail_storage_path',
             'name' => 'Storage Path',
@@ -651,13 +731,13 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
             'system_setting' => true,
             'key' => 'thumbnail_width',
             'name' => 'Width',
             'description' => 'Width, in pixels, for image-type record thumbnails.<br><br>
-            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
-            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>
             The original files will not be altered.',
             'default_value' => 200,
             'control' => 'number',
@@ -665,13 +745,13 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
             'system_setting' => true,
             'key' => 'thumbnail_height',
             'name' => 'Height',
             'description' => 'Height, in pixels, for image-type record thumbnails.<br><br>
-            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
-            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>
             The original files will not be altered.',
             'default_value' => 200,
             'control' => 'number',
@@ -679,7 +759,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
             'system_setting' => true,
             'key' => 'thumbnail_format',
             'name' => 'Format',
@@ -691,7 +771,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Thumbnails')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
             'system_setting' => true,
             'key' => 'thumbnail_quality',
             'name' => 'Quality',
@@ -704,7 +784,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
             'system_setting' => true,
             'key' => 'preview_storage_path',
             'name' => 'Storage Path',
@@ -714,13 +794,13 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
             'system_setting' => true,
             'key' => 'preview_width',
             'name' => 'Width',
             'description' => 'Width, in pixels, for image-type record previews.<br><br>
-            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
-            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>
             The original files will not be altered.',
             'default_value' => 1200,
             'control' => 'number',
@@ -728,13 +808,13 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
             'system_setting' => true,
             'key' => 'preview_height',
             'name' => 'Height',
             'description' => 'Height, in pixels, for image-type record previews.<br><br>
-            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>            
-            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>            
+            Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
+            Images smaller than this in both dimensions will not be scaled. Instead, the original image will be served.<br><br>
             The original files will not be altered.',
             'default_value' => 1200,
             'control' => 'number',
@@ -742,7 +822,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
             'system_setting' => true,
             'key' => 'preview_format',
             'name' => 'Format',
@@ -754,7 +834,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('name', 'Previews')->first()->id,
+            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
             'system_setting' => true,
             'key' => 'preview_quality',
             'name' => 'Quality',
@@ -765,11 +845,289 @@ class DefaultValuesSeeder extends Seeder
             'maximum_value' => 100,
             'allow_null' => true,
         ]);
+    }
+
+    public function seedUserSettings()
+    {
+        /**
+         * Display
+         */
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'key' => 'utc_offset',
+            'name' => 'UTC Offset',
+            'description' => 'Timezone offset for diplaying dates in local time.',
+            'default_value' => 0,
+            'control' => 'number',
+            'minimum_value' => -12,
+            'maximum_value' => 14,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'key' => 'date_format',
+            'name' => 'Date Format',
+            'description' => 'Preferred template for dates.<br><br>
+            Leave blank to infer format from timezone.',
+            'default_value' => true,
+            'control' => 'textbox',
+            'allow_null' => true,
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'key' => 'enable_relative_dates',
+            'name' => 'Enable Relative Dates',
+            'description' => 'When on, things that have happened recently will be shown as `x minutes ago` or `x hours ago`. Older things will use a normal date format.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'key' => 'dark_theme',
+            'name' => 'Dark Theme',
+            'description' => 'Turn on for the dark theme. Turn off for the light theme.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
 
 
         /**
-         * User Setting Groups
+         * Privacy
          */
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'allow_friend_requests',
+            'name' => 'Allow Friend Requests',
+            'description' => 'Whether to allow other users to send you friend requests.<br><br>
+            This will not affect your current friends or requests.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'allow_dms_from_anyone',
+            'name' => 'Allow DMs From Anyone',
+            'description' => 'Whether to allow other users to send you direct messages.<br><br>
+            Friends and staff can always send you DMs. Blocked users can never send you DMs.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'hide_profile',
+            'name' => 'Hide Profile',
+            'description' => 'Whether to allow other users to see your profile.<br><br>
+            Friends and staff can always view your profile. Blocked users can never view your profile.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'hide_friends_list',
+            'name' => 'Hide Friends List',
+            'description' => 'Whether to allow other users to see your friends list.<br><br>
+            Friends and staff can always view your friends list. Blocked users can never view your friends list.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'hide_favorites',
+            'name' => 'Hide Favorites',
+            'description' => 'Whether to allow other users to see your favorites folder.<br><br>
+            Staff can always view your favoritess. Blocked users can never view your favorites.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'key' => 'hide_communities',
+            'name' => 'Hide Communities',
+            'description' => 'Whether to allow other users to see which communities you belong to.<br><br>
+            Friends and staff can always view your communities. Blocked users can never view your communities.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+
+        /**
+         * Moderation
+         */
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.moderation')->first()->id,
+            'key' => 'hide_blocked_users',
+            'name' => 'Hide Blocked Users',
+            'description' => 'If on, all content posted by users on your block list will be completely hidden.<br>
+            If off, content will be blurred or collapsed such that you can then choose to see individual content from blocked users.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+
+        /**
+         * Records
+         */
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'record_fit',
+            'name' => 'Fitting Strategy',
+            'description' => 'The default way that records should be scaled when viewed.',
+            'default_value' => \App\Models\RecordFit::default()->first()->id,
+            'control' => 'select',
+            'references_model' => \App\Models\RecordFit::class,
+            'references_value' => 'id',
+            'references_text' => 'name',
+            'references_description' => 'description',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'record_fetching_strategy',
+            'name' => 'Fetching Strategy',
+            'description' => 'How the versions of a record should be presented.',
+            'default_value' => \App\Models\RecordFetch::default()->first()->id,
+            'control' => 'select',
+            'references_model' => \App\Models\RecordFetch::class,
+            'references_value' => 'id',
+            'references_text' => 'name',
+            'references_description' => 'description',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'warn_on_preview_download',
+            'name' => 'Warn When Downloading Preview',
+            'description' => 'If you should be warned when it looks like you\'re trying to download a preview instead of an original.<br><br>
+            Originals can always be downloaded with the `Download` button in the record view page.<br><br>
+            If you do a lot of right-click/long-press actions on images, you\'ll probably want this off.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'record_infinite_scroll',
+            'name' => 'Infinite Scroll',
+            'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
+            'default_value' => false,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'nested_record_comments',
+            'name' => 'Nested Comments',
+            'description' => 'If comments below records should be shown in a threaded view based on replies.',
+            'default_value' => true,
+            'control' => 'checkbox',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'minimum_record_comment_score',
+            'name' => 'Minimum Comment Score',
+            'description' => 'Comments with a score below this will be collapsed.',
+            'default_value' => -10,
+            'control' => 'number',
+        ]);
+
+        Setting::create([
+            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'key' => 'minimum_record_score',
+            'name' => 'Minimum Record Score',
+            'description' => 'Records with a score below this will not show up in normal searches.<br><br>
+            Low-scoring records can still be found by searching their ID, MD5, or pHash or by specifying a score range in your search.',
+            'default_value' => -10,
+            'control' => 'number',
+        ]);
+
+
+        /**
+         * Forum
+         */
+
+            /**
+             * Threads
+             */
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.forum.threads')->first()->id,
+                'key' => 'thread_infinite_scroll',
+                'name' => 'Infinite Scroll',
+                'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
+                'default_value' => false,
+                'control' => 'checkbox',
+            ]);
+
+
+            /**
+             * Posts
+             */
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'key' => 'post_infinite_scroll',
+                'name' => 'Infinite Scroll',
+                'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
+                'default_value' => false,
+                'control' => 'checkbox',
+            ]);
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'key' => 'post_nested_view',
+                'name' => 'Nested View',
+                'description' => 'If posts should be shown in a threaded view based on replies.',
+                'default_value' => true,
+                'control' => 'checkbox',
+            ]);
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'key' => 'post_minimum_score',
+                'name' => 'Minimum Score',
+                'description' => 'Posts with a score below this will be collapsed.',
+                'default_value' => -10,
+                'control' => 'number',
+            ]);
+
+
+        /**
+         * Notifications
+         */
+
+            /**
+             * Records
+             */
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.notifications.records')->first()->id,
+                'key' => 'notifications_record_approval_email',
+                'name' => 'Approval - Email',
+                'description' => 'Receive an email when your records are approved.',
+                'default_value' => false,
+                'control' => 'checkbox',
+            ]);
+
+            Setting::create([
+                'setting_group_id' => SettingGroup::where('key', 'user.notifications.records')->first()->id,
+                'key' => 'notifications_record_approval_push',
+                'name' => 'Approval - Push',
+                'description' => 'Receive a push notification when your records are approved.',
+                'default_value' => false,
+                'control' => 'checkbox',
+            ]);
     }
 }
 

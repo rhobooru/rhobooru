@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDateFormatsTable extends Migration
+class CreateRecordFetchesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,14 @@ class CreateDateFormatsTable extends Migration
      */
     public function up()
     {
-        Schema::create('date_formats', function (Blueprint $table) {
+        Schema::create('record_fetches', function (Blueprint $table) {
             $table->smallIncrements('id');
 
-            // Date Format Info
-            $table->string('format')->unique();
+            // Record Fit Info
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->boolean('is_default')->default(false);
+            $table->integer('order');
         });
     }
 
@@ -29,6 +31,6 @@ class CreateDateFormatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('date_formats');
+        Schema::dropIfExists('record_fetches');
     }
 }

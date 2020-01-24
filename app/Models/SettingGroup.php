@@ -71,6 +71,7 @@ class SettingGroup extends Eloquent implements Sortable
     public function buildSortQuery()
     {
         // Retrict sort logic to just this item's siblings.
-        return static::query()->where('setting_group_id', $this->setting_group_id);
+        return static::query()
+            ->where('setting_group_id', $this->setting_group_id);
     }
 }

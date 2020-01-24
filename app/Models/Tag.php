@@ -90,40 +90,27 @@ class Tag extends Model
      *
      * Called from TagObserver.updating(). This shouldn't need to be
      * called manually!
+     *
+     * @return null
      */
     public function doAliasSideEffects()
     {
-        $tag_being_aliased = $this;
-
         // If our tag hasn't even had its alias updated, do nothing.
-        if (! $tag_being_aliased->isDirty('aliased_to_tag_id')) {
+        if (! $this->isDirty('aliased_to_tag_id')) {
             return;
         }
 
-        $didHaveAlias = $tag_being_aliased
-            ->getOriginal('aliased_to_tag_id') !== null;
-
-        $willHaveAlias = $tag_being_aliased->aliased_to_tag_id !== null;
+        $didHaveAlias = $this->getOriginal('aliased_to_tag_id') !== null;
+        $willHaveAlias = $this->aliased_to_tag_id !== null;
 
         // If we're aliasing this tag...
         if (! $didHaveAlias && $willHaveAlias) {
-            $this->aliased_to->records()->attach($this->records()->pluck('id'));
+            // Add any records from this tag to the alias tag.
+            $this->aliased_to->records()
+                ->attach($this->records()->pluck('id'));
 
-            // Delete any shared tag_record rows belonging to this tag.
+            // Remove any records belonging to this tag.
             $this->records()->detach();
         }
-        // We're re-aliasing the tag...
-        //else if ($didHaveAlias && $willHaveAlias)
-        //{
-            // Do nothing. This tag had no items associated with it before
-            // so there's nothing to move or detach.
-        //}
-        // We're un-aliasing the tag...
-        //else if($didHaveAlias && !$willHaveAlias)
-        //{
-            // Do nothing. We can't know which items are supposed to belong
-            // to this tag now so any further work will need to be
-            // done manually.
-        //}
     }
 }

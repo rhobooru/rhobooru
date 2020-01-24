@@ -18,6 +18,7 @@ class CreateSettingGroupsTable extends Migration
             $table->timestamps();
 
             // Setting Group Info
+            $table->string('key')->unique();
             $table->string('name');
             $table->text('description')->nullable();
             $table->unsignedInteger('setting_group_id')->nullable();
