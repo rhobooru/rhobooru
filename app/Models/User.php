@@ -184,7 +184,7 @@ class User extends Authenticatable
      */
     public function createUserSettings()
     {
-        // TODO
+        // TODO: Implement
     }
 
     /**
@@ -252,8 +252,7 @@ class User extends Authenticatable
      */
     public function forceDeleteUserRelationships()
     {
-        // Delete the user's settings.
-        // TODO
+        // TODO: Delete the user's settings.
 
         // Delete the user's folders.
         $this->folders()->forceDelete();
