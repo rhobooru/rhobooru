@@ -74,38 +74,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the users's preferred date format.
-     */
-    // public function date_format(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\DateFormat');
-    // }
-
-    /**
-     * Get the users's preferred site theme.
-     */
-    // public function site_theme(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\SiteTheme');
-    // }
-
-    /**
-     * Get the users's preferred record fit.
-     */
-    // public function record_fit(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\RecordFit');
-    // }
-
-    /**
-     * Get the users's preferred max content rating.
-     */
-    // public function max_content_rating(): BelongsTo
-    // {
-    //     return $this->belongsTo('App\Models\ContentRating', 'maximum_content_rating_id');
-    // }
-
-    /**
      * Get the user's folders.
      */
     public function folders(): HasMany

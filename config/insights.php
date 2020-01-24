@@ -127,5 +127,4 @@ return [
             'maxComplexity' => 8,
         ],
     ],
-
 ];

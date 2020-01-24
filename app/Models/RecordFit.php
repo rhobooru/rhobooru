@@ -22,7 +22,6 @@ class RecordFit extends Model
         'is_default',
         'name',
         'description',
-        'id_default',
     ];
 
     /**

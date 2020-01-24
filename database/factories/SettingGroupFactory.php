@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 $factory->define(SettingGroup::class, function (Faker $faker) {
     return [
-        'name' => $faker->unique()->word(),
+        'key' => $faker->unique()->words(3, true),
+        'name' => $faker->unique()->words(3, true),
     ];
 });
