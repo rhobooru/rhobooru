@@ -59,7 +59,7 @@ class Setting extends Eloquent implements Sortable
     {
         // Retrict sort logic to just this item's siblings.
         return static::query()
-            ->where('system_setting', $this->system_setting === 1 ? true : false)
+            ->where('system_setting', $this->system_setting === 1)
             ->where('setting_group_id', $this->setting_group_id);
     }
 }

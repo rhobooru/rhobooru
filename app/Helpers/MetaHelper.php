@@ -17,7 +17,9 @@ class MetaHelper
         $models = [];
 
         foreach ($files as $file) {
-            if ($file === '.' || $file === '..' || ! preg_match('|\.php|', $file)) {
+            if ($file === '.'
+                || $file === '..'
+                || ! preg_match('|\.php|', $file)) {
                 continue;
             }
 

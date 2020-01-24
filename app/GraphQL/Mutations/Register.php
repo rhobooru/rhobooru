@@ -13,16 +13,20 @@ class Register extends BaseAuthResolver
 {
     /**
      * @param $rootValue
-     * @param array                                                    $args
-     * @param \Nuwave\Lighthouse\Support\Contracts\GraphQLContext      $context
-     * @param \GraphQL\Type\Definition\ResolveInfo                     $resolveInfo
+     * @param array                                                $args
+     * @param \Nuwave\Lighthouse\Support\Contracts\GraphQLContext  $context
+     * @param \GraphQL\Type\Definition\ResolveInfo                 $resolveInfo
      *
      * @throws \Exception
      *
      * @return array
      */
-    public function resolve($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
-    {
+    public function resolve(
+        $rootValue,
+        array $args,
+        GraphQLContext $context,
+        ResolveInfo $resolveInfo
+    ) {
         $input = collect($args)->except('password_confirmation')->toArray();
         $input['password'] = Hash::make($input['password']);
 

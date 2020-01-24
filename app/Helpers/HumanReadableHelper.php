@@ -16,25 +16,20 @@ class HumanReadableHelper
     {
         $val = trim($val);
         $last = strtolower($val[strlen($val) - 1]);
-
         $numeric = trim(substr($val, 0, -1));
 
         switch ($last) {
             default:
                 throw new \Exception("Unknown unit: [${val}]");
-
             case 't':
                 $numeric *= 1024;
                 // No break.
-
             case 'g':
                 $numeric *= 1024;
                 // No break.
-
             case 'm':
                 $numeric *= 1024;
                 // No break.
-
             case 'k':
                 return $numeric * 1024;
         }

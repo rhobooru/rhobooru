@@ -26,7 +26,8 @@ class ImageHelper
      *
      * @param string $file
      *
-     * @return string pHash returned as an integer to make DB storage/comparisons easier.
+     * @return string pHash returned as an integer to make DB
+     *                storage/comparisons easier.
      */
     public static function imageToPHash(string $file): string
     {
@@ -34,7 +35,8 @@ class ImageHelper
 
         $hash = $hasher->hash($file);
 
-        // MariaDB is a picky bitch about how binaries are stored and used, so convert hex to bigint.
+        // MariaDB is a picky bitch about how binaries
+        // are stored and used, so convert hex to bigint.
         return base_convert($hash, 16, 10);
     }
 
@@ -48,20 +50,24 @@ class ImageHelper
      */
     public static function makeThumbnail(string $input_file): ?string
     {
+        $config_root = 'rhobooru.media.images.thumbnails';
+
         $path_info = pathinfo($input_file);
 
-        $width = config('rhobooru.media.images.thumbnails.width');
-        $height = config('rhobooru.media.images.thumbnails.height');
+        $width = config("${config_root}.width");
+        $height = config("${config_root}.height");
 
         $image = self::fitImage($input_file, $width, $height);
 
-        if ($image === null) {
+        if (! $image) {
             return null;
         }
 
-        $thumbnail_path = $path_info['dirname'] . '/' . $path_info['filename'] . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
+        $thumbnail_path = $path_info['dirname'] . '/'
+            . $path_info['filename'] . '_thumbnail.'
+            . config("${config_root}.format");
 
-        $thumbnail_quality = config('rhobooru.media.images.thumbnails.format_quality');
+        $thumbnail_quality = config("${config_root}.format_quality");
 
         $image->save($thumbnail_path, $thumbnail_quality);
 
@@ -78,20 +84,24 @@ class ImageHelper
      */
     public static function makePreview(string $input_file): ?string
     {
+        $config_root = 'rhobooru.media.images.previews';
+
         $path_info = pathinfo($input_file);
 
-        $width = config('rhobooru.media.images.previews.width');
-        $height = config('rhobooru.media.images.previews.height');
+        $width = config("${config_root}.width");
+        $height = config("${config_root}.height");
 
         $image = self::fitImage($input_file, $width, $height);
 
-        if ($image === null) {
+        if (! $image) {
             return null;
         }
 
-        $preview_path = $path_info['dirname'] . '/' . $path_info['filename'] . '_preview.' . config('rhobooru.media.images.previews.format');
+        $preview_path = $path_info['dirname'] . '/'
+            . $path_info['filename'] . '_preview.'
+            . config("${config_root}.format");
 
-        $preview_quality = config('rhobooru.media.images.previews.format_quality');
+        $preview_quality = config("${config_root}.format_quality");
 
         $image->save($preview_path, $preview_quality);
 
@@ -108,17 +118,21 @@ class ImageHelper
      *
      * @return \Intervention\Image\Image|null
      */
-    public static function fitImage(string $file, int $max_width, int $max_height): ?\Intervention\Image\Image
-    {
+    public static function fitImage(
+        string $file,
+        int $max_width,
+        int $max_height
+    ): ?\Intervention\Image\Image {
         $image = Image::make($file);
 
-        if ($image->width() <= $max_width && $image->height() <= $max_height) {
+        if ($image->width() <= $max_width
+            && $image->height() <= $max_height) {
             return null;
         }
 
-        $image->resize($max_width, $max_height, static function($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
+        $image->resize($max_width, $max_height, static function($img) {
+            $img->aspectRatio();
+            $img->upsize();
         });
 
         return $image;

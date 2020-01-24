@@ -61,9 +61,10 @@ trait UserAudits
     /**
      * Assigns the current user as the deleted_by user_id.
      *
-     * `deleting` doesn't actually save afterwards, so we need to set and save the new
-     * column values. However, we don't want to call updating erroneously, so we need
-     * to bypass the model and run a raw database query.
+     * `deleting` doesn't actually save afterwards, so we need to
+     * set and save the new column values. However, we don't want
+     * to call updating erroneously, so we need to bypass the model
+     * and run a raw database query.
      *
      * @param object $model
      *

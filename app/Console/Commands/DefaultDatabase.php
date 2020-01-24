@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\EnvironmentHelper as Env;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Passport\Client;
 
 class DefaultDatabase extends Command
 {
@@ -51,14 +53,14 @@ class DefaultDatabase extends Command
         $this->call('passport:install');
 
         // Get the password grant client we just installed.
-        $passwordClient = \Laravel\Passport\Client::where('password_client', true)->first();
+        $passwordClient = Client::where('password_client', true)->first();
 
         $id = $passwordClient->id;
         $secret = $passwordClient->secret;
 
         // Save the client details to the .env file so laravel-graphql can work.
-        \App\Helpers\EnvironmentHelper::saveEnvironmentValue('PASSPORT_CLIENT_ID', $id);
-        \App\Helpers\EnvironmentHelper::saveEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
+        Env::saveEnvironmentValue('PASSPORT_CLIENT_ID', $id);
+        Env::saveEnvironmentValue('PASSPORT_CLIENT_SECRET', $secret);
     }
 
     /**
@@ -68,9 +70,11 @@ class DefaultDatabase extends Command
      */
     private function deleteMedia()
     {
-        Storage::deleteDirectory(config('rhobooru.media.images.originals.storage_path'));
-        Storage::deleteDirectory(config('rhobooru.media.images.previews.storage_path'));
-        Storage::deleteDirectory(config('rhobooru.media.images.thumbnails.storage_path'));
-        Storage::deleteDirectory(config('rhobooru.media.images.staging_path'));
+        $root = 'rhobooru.media.images';
+
+        Storage::deleteDirectory(config("${root}.originals.storage_path"));
+        Storage::deleteDirectory(config("${root}.previews.storage_path"));
+        Storage::deleteDirectory(config("${root}.thumbnails.storage_path"));
+        Storage::deleteDirectory(config("${root}.staging_path"));
     }
 }

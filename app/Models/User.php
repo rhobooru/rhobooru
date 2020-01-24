@@ -198,11 +198,11 @@ class User extends Authenticatable
             return $this->favoritesFolder->first();
         }
 
-        return \App\Models\Folder::create([
+        return Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::favorites()->first()->id,
-            'access_type_id' => \App\Models\AccessType::public()->first()->id,
+            'folder_type_id' => FolderType::favorites()->first()->id,
+            'access_type_id' => AccessType::public()->first()->id,
             'name' => 'Favorites',
         ]);
     }
@@ -218,11 +218,11 @@ class User extends Authenticatable
             return $this->quickListFolder->first();
         }
 
-        return \App\Models\Folder::create([
+        return Folder::create([
             'created_by_user_id' => $this->id,
             'updated_by_user_id' => $this->id,
-            'folder_type_id' => \App\Models\FolderType::quickList()->first()->id,
-            'access_type_id' => \App\Models\AccessType::private()->first()->id,
+            'folder_type_id' => FolderType::quickList()->first()->id,
+            'access_type_id' => AccessType::private()->first()->id,
             'name' => 'Quick List',
         ]);
     }
@@ -247,7 +247,8 @@ class User extends Authenticatable
     }
 
     /**
-     * Force deletes all the related models for a user (eg. settings and folders).
+     * Force deletes all the related models for a user
+     * (eg. settings and folders).
      */
     public function forceDeleteUserRelationships()
     {

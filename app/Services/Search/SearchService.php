@@ -9,11 +9,11 @@ use SearchQuery;
 
 class SearchService
 {
-    public static function searchRecords(string $raw_query, int $page, int $results_per_page): Collection
+    public static function searchRecords(string $raw_query, int $page, int $per_page): Collection
     {
         $tag_ids = self::getTagIds($raw_query);
 
-        $record_ids = self::getRecordIds($tag_ids, $page, $results_per_page);
+        $record_ids = self::getRecordIds($tag_ids, $page, $per_page);
 
         return Record::whereIn('id', $record_ids)->get();
     }
@@ -31,8 +31,11 @@ class SearchService
         return $tag_ids;
     }
 
-    private static function getRecordIds(array $tag_ids, in $page, int $results_per_page)
-    {
+    private static function getRecordIds(
+        array $tag_ids,
+        in $page,
+        int $per_page
+    ) {
         $search_query = DB::table('record_tag')
             ->select('record_id')
             ->whereIn('tag_id', $tag_ids)
@@ -41,8 +44,8 @@ class SearchService
 
         // Pagination
         $search_query
-            ->skip(($page - 1) * $results_per_page)
-            ->take($results_per_page);
+            ->skip(($page - 1) * $per_page)
+            ->take($per_page);
 
         return $search_query->pluck('record_id');
     }

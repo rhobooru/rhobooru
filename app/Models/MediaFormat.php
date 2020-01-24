@@ -44,8 +44,8 @@ class MediaFormat extends Model
      */
     public function scopeRequiresMediaControls($query)
     {
-        return $query->whereHas('record_type', static function(Builder $subquery) {
-            $subquery->requiresMediaControls();
+        return $query->whereHas('record_type', static function(Builder $sub) {
+            $sub->requiresMediaControls();
         });
     }
 

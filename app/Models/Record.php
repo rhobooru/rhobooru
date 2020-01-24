@@ -133,6 +133,31 @@ class Record extends Model
     }
 
     /**
+     * Limit a query by record phash distance.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeSimilarTo(
+        $query,
+        int $max_distance,
+        int $phash,
+        ?int $id
+    ) {
+        $distance = \DB::raw("BIT_COUNT(phash ^ ${phash}) as `distance`");
+
+        $query->addSelect($distance)
+            ->whereRaw('BIT_COUNT(phash ^ ?) < ?', [$phash, $max_distance]);
+
+        if ($id !== null) {
+            $query->where('id', '!=', $id);
+        }
+
+        return $query;
+    }
+
+    /**
      * Check if the given file matches this model's `md5`.
      *
      * @param string $path
@@ -165,15 +190,17 @@ class Record extends Model
             throw new \Exception('Record already marked as uploaded');
         }
 
+        $config_root = 'rhobooru.media.images';
+
         // Build the paths and filenames.
         $filename = $this->md5;
-        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
-        $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
+        $thumbnail_name = "${filename}_thumbnail." . config("${config_root}.thumbnails.format");
+        $preview_name = "${filename}_preview." . config("${config_root}.previews.format");
 
-        $staging_path = config('rhobooru.media.images.staging_path');
-        $final_path = config('rhobooru.media.images.originals.storage_path') . '/' . $this->hshFolder;
-        $thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' .  $this->hshFolder;
-        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' .  $this->hshFolder;
+        $staging_path = config("${config_root}.staging_path");
+        $final_path = config("${config_root}.originals.storage_path") . '/' . $this->hashFolder;
+        $thumbnail_path = config("${config_root}.thumbnails.storage_path") . '/' . $this->hashFolder;
+        $preview_path = config("${config_root}.previews.storage_path") . '/' . $this->hashFolder;
 
         $full_staging_path = $staging_path . '/' . $filename;
         $full_staging_thumbnail_path = $staging_path . '/' . $thumbnail_name;
@@ -194,7 +221,10 @@ class Record extends Model
         // Save the file into the staging path.
         $file->storePubliclyAs($staging_path, $filename);
 
-        $this->file_extension = image_type_to_extension(exif_imagetype(Storage::path($full_staging_path)), false);
+        $this->file_extension = image_type_to_extension(
+            exif_imagetype(Storage::path($full_staging_path)),
+            false
+        );
 
         $filename = $this->md5 . '.' . $this->file_extension;
         $full_final_path = $final_path . '/' . $filename;
@@ -320,9 +350,11 @@ class Record extends Model
         }
 
         // Build the paths and filenames.
-        $thumbnail_name = $this->md5 . '_thumbnail.' . config('rhobooru.media.images.thumbnails.format');
+        $thumbnail_name = "{$this->md5}_thumbnail."
+            . config('rhobooru.media.images.thumbnails.format');
 
-        //$thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path') . '/' . $this->hashFolder;
+        //$thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path')
+        //    . '/' . $this->hashFolder;
 
         return asset("storage/uploads/thumbnails/{$this->hashFolder}/${thumbnail_name}");
     }
@@ -340,9 +372,11 @@ class Record extends Model
         }
 
         // Build the paths and filenames.
-        $preview_name = $this->md5 . '_preview.' . config('rhobooru.media.images.previews.format');
+        $preview_name = "{$this->md5}_preview."
+            . config('rhobooru.media.images.previews.format');
 
-        $preview_path = config('rhobooru.media.images.previews.storage_path') . '/' . $this->hashFolder;
+        $preview_path = config('rhobooru.media.images.previews.storage_path')
+            . '/' . $this->hashFolder;
 
         if (! Storage::exists($preview_path . '/' . $preview_name)) {
             return null;
@@ -358,8 +392,12 @@ class Record extends Model
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    public function search($root, array $args, \Nuwave\Lighthouse\Schema\Context $context, \GraphQL\Type\Definition\ResolveInfo $resolveInfo)
-    {
+    public function search(
+        $root,
+        array $args,
+        \Nuwave\Lighthouse\Schema\Context $context,
+        \GraphQL\Type\Definition\ResolveInfo $resolveInfo
+    ) {
         $raw_query = trim($args['query']);
 
         if (! $raw_query) {
@@ -385,27 +423,28 @@ class Record extends Model
      *
      * @return \Illuminate\Database\Query\Builder
      */
-    public function similarRecords($root, array $args, \Nuwave\Lighthouse\Schema\Context $context, \GraphQL\Type\Definition\ResolveInfo $resolveInfo)
-    {
-        $id = false;
-        $phash = false;
+    public function similarRecords(
+        $root,
+        array $args,
+        \Nuwave\Lighthouse\Schema\Context $context,
+        \GraphQL\Type\Definition\ResolveInfo $resolveInfo
+    ) {
+        $max_distance = 20; // TODO: Replace with system setting.
 
-        if (array_key_exists('id', $args)) {
-            $id = $args['id'];
+        $phash = array_key_exists('phash', $args) && is_numeric($args['phash'])
+            ? $args['phash']
+            : null;
+
+        $id = array_key_exists('id', $args) && is_numeric($args['id'])
+            ? $args['id']
+            : null;
+
+        if ($id !== null) {
             $phash = Record::findOrFail($id)->phash;
-        } elseif (array_key_exists('phash', $args) && is_numeric($args['phash'])) {
-            $phash = $args['phash'];
         }
 
-        $query = Record::select('*')
-            ->addSelect(\DB::raw('BIT_COUNT(phash ^ ' . $phash . ') as `distance`'))
-            ->whereRaw('BIT_COUNT(phash ^ ?) < ?', [$phash, 20])
+        return Record::select('*')
+            ->similarTo($max_distance, $phash, $id)
             ->orderBy('distance');
-
-        if ($id) {
-            $query->where('id', '!=', $id);
-        }
-
-        return $query;
     }
 }
