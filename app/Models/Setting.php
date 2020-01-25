@@ -62,4 +62,41 @@ class Setting extends Eloquent implements Sortable
             ->where('system_setting', $this->system_setting === 1)
             ->where('setting_group_id', $this->setting_group_id);
     }
+
+    /**
+     * Get the settings config key.
+     *
+     * @return string
+     */
+    public function getConfigKeyAttribute(): string
+    {
+        return "{$this->setting_group->key}.{$this->key}";
+    }
+
+    /**
+     * Checks that the new value is valid for this setting's
+     * options.
+     *
+     * @param mixed $new_value
+     *
+     * @return void
+     */
+    public function validate($new_value)
+    {
+        if ($new_value === null) {
+            return $this->allow_null;
+        }
+
+        if (is_numeric($new_value)) {
+            if ($this->minimum_value && $this->minimum_value > $new_value) {
+                return false;
+            }
+
+            if ($this->maximum_value && $this->maximum_value < $new_value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

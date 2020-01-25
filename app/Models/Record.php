@@ -202,12 +202,12 @@ class Record extends Model
         $thumbnail_path = config("${config_root}.thumbnails.storage_path") . '/' . $this->hashFolder;
         $preview_path = config("${config_root}.previews.storage_path") . '/' . $this->hashFolder;
 
-        $full_staging_path = $staging_path . '/' . $filename;
-        $full_staging_thumbnail_path = $staging_path . '/' . $thumbnail_name;
-        $full_staging_preview_path = $staging_path . '/' . $preview_name;
+        $full_staging_path = "${staging_path}/${filename}";
+        $full_staging_thumbnail_path = "${staging_path}/${thumbnail_name}";
+        $full_staging_preview_path = "${staging_path}/${preview_name}";
 
-        $full_thumbnail_path = $thumbnail_path . '/' . $thumbnail_name;
-        $full_preview_path = $preview_path . '/' . $preview_name;
+        $full_thumbnail_path = "${thumbnail_path}/${thumbnail_name}";
+        $full_preview_path = "${preview_path}/${preview_name}";
 
         // Check if the file already exists.
         $file_exists_in_staging = Storage::exists($full_staging_path);
@@ -316,7 +316,85 @@ class Record extends Model
             return null;
         }
 
-        substr($this->md5, 0, 3);
+        return substr($this->md5, 0, 3);
+    }
+
+    /**
+     * Get filename for a record's original image.
+     *
+     * @return string|null
+     */
+    public static function generateFilename(string $base, string $extension): ?string
+    {
+        if ($base === null) {
+            return null;
+        }
+
+        if ($extension === null) {
+            return null;
+        }
+
+        return $base . '.' . $extension;
+    }
+
+    /**
+     * Get filename for this record's original image.
+     *
+     * @return string|null
+     */
+    public function getFilenameAttribute(): ?string
+    {
+        return self::generateFilename($this->md5, $this->file_extension);
+    }
+
+    /**
+     * Get filename for a record's thumbnail.
+     *
+     * @return string|null
+     */
+    public static function generateThumbnailFilename(string $base): ?string
+    {
+        if ($base === null) {
+            return null;
+        }
+
+        return "${base}_thumbnail."
+            . config('rhobooru.media.images.thumbnails.format');
+    }
+
+    /**
+     * Get filename for this record's thumbnail.
+     *
+     * @return string|null
+     */
+    public function getThumbnailFilenameAttribute(): ?string
+    {
+        return self::generateThumbnailFilename($this->md5);
+    }
+
+    /**
+     * Get filename for a record's preview.
+     *
+     * @return string|null
+     */
+    public static function generatePreviewFilename(string $base): ?string
+    {
+        if ($base === null) {
+            return null;
+        }
+
+        return "${base}_preview."
+            . config('rhobooru.media.images.previews.format');
+    }
+
+    /**
+     * Get filename for this record's preview.
+     *
+     * @return string|null
+     */
+    public function getPreviewFilenameAttribute(): ?string
+    {
+        return self::generatePreviewFilename($this->md5);
     }
 
     /**
@@ -326,15 +404,7 @@ class Record extends Model
      */
     public function getImageAttribute(): string
     {
-        // Make sure the record is already uploaded.
-        if (! $this->upload_complete) {
-            throw new \Exception('Record is not completely uploaded yet');
-        }
-
-        // Build the paths and filenames.
-        $filename = $this->md5 . '.' . $this->file_extension;
-
-        return asset("storage/uploads/images/{$this->hashFolder}/${filename}");
+        return $this->buildAssetPath('original');
     }
 
     /**
@@ -344,19 +414,7 @@ class Record extends Model
      */
     public function getThumbnailAttribute(): string
     {
-        // Make sure the record is already uploaded.
-        if (! $this->upload_complete) {
-            throw new \Exception('Record is not completely uploaded yet');
-        }
-
-        // Build the paths and filenames.
-        $thumbnail_name = "{$this->md5}_thumbnail."
-            . config('rhobooru.media.images.thumbnails.format');
-
-        //$thumbnail_path = config('rhobooru.media.images.thumbnails.storage_path')
-        //    . '/' . $this->hashFolder;
-
-        return asset("storage/uploads/thumbnails/{$this->hashFolder}/${thumbnail_name}");
+        return $this->buildAssetPath('thumbnail');
     }
 
     /**
@@ -366,23 +424,46 @@ class Record extends Model
      */
     public function getPreviewAttribute(): ?string
     {
-        // Make sure the record is already uploaded.
+        return $this->buildAssetPath('preview', true);
+    }
+
+    /**
+     * Build the URL for a given media version.
+     *
+     * @param string $type       The version to request.
+     * @param bool $check_exists Check if the version exists.
+     *
+     * @return string|null The media URL.
+     */
+    private function buildAssetPath(
+        string $type,
+        bool $check_exists = false
+    ): ?string {
         if (! $this->upload_complete) {
-            throw new \Exception('Record is not completely uploaded yet');
+            throw new \Exception('Record is not uploaded yet');
         }
 
-        // Build the paths and filenames.
-        $preview_name = "{$this->md5}_preview."
-            . config('rhobooru.media.images.previews.format');
+        switch ($type) {
+            case 'thumbnail':
+                $path = config("rhobooru.media.images.${type}s.storage_path")
+                    . "/{$this->hashFolder}/{$this->thumbnail_filename}";
+                break;
 
-        $preview_path = config('rhobooru.media.images.previews.storage_path')
-            . '/' . $this->hashFolder;
+            case 'preview':
+                $path = config("rhobooru.media.images.${type}s.storage_path")
+                    . "/{$this->hashFolder}/{$this->preview_filename}";
+                break;
 
-        if (! Storage::exists($preview_path . '/' . $preview_name)) {
+            case 'original':
+                $path = config("rhobooru.media.images.${type}s.storage_path")
+                    . "/{$this->hashFolder}/{$this->filename}";
+        }
+
+        if ($check_exists && ! Storage::exists($path)) {
             return null;
         }
 
-        return asset("storage/uploads/previews/{$this->hashFolder}/${preview_name}");
+        return Storage::url($path);
     }
 
     /**

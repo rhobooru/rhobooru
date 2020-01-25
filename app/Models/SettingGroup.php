@@ -21,6 +21,7 @@ class SettingGroup extends Eloquent implements Sortable
         'description',
         'setting_group_id',
         'sort',
+        'key',
     ];
 
     /**

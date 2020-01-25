@@ -21,7 +21,6 @@ class CreateSettingsTable extends Migration
             $table->unsignedInteger('setting_group_id')->nullable();
             $table->boolean('system_setting')->default(false);
             $table->string('key');
-            $table->unsignedBigInteger('order')->default(0);
             $table->string('name');
             $table->text('description')->nullable();
             $table->text('default_value')->nullable();
@@ -35,6 +34,7 @@ class CreateSettingsTable extends Migration
             $table->string('references_value')->nullable(); // Value column for lookup.
             $table->string('references_text')->nullable(); // Display text column for lookup.
             $table->string('references_description')->nullable(); // Description text column for lookup.
+            $table->unsignedBigInteger('order')->default(0);
 
             // Indices & Constraints
             $table->foreign('setting_group_id')->references('id')->on('setting_groups')->onDelete('set null');

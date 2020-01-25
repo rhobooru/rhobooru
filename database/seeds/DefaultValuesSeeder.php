@@ -1,12 +1,14 @@
 <?php
 
-use Illuminate\Support\Str;
-use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use App\Helpers\PermissionsHelper as Perms;
-use \App\Models\SettingGroup;
 use \App\Models\Setting;
+use \App\Models\SettingGroup;
+use App\Helpers\PermissionsHelper as Perms;
+use App\Models\SystemSetting;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DefaultValuesSeeder extends Seeder
 {
@@ -26,8 +28,9 @@ class DefaultValuesSeeder extends Seeder
         $this->seedFolderTypes();
         $this->seedTagAssociationTypes();
         $this->seedSettingGroups();
+        $this->seedSystemSettingDefintions();
+        $this->seedUserSettingDefintions();
         $this->seedSystemSettings();
-        $this->seedUserSettings();
 
         // Seed permissions, then roles, then users.
         $this->seedRolesAndPermissions();
@@ -396,7 +399,7 @@ class DefaultValuesSeeder extends Seeder
         // Create anonymous user.
         //
         // Used for audits and permissions when users aren't.
-        // authenticated. Cannot be deleted from the system.
+        // authenticated. Cannot be deleted from the app.
         $user = \App\Models\User::create([
             'username' => 'anonymous',
             'password' => Hash::make(Str::random(255)),
@@ -440,7 +443,7 @@ class DefaultValuesSeeder extends Seeder
 
         // Create admin user.
         //
-        // Used as site super-admin. Cannot be deleted from the system.
+        // Used as site super-admin. Cannot be deleted from the app.
         //
         // Should only be used when necessary. Further regular-admin accounts
         // should be made for daily use.
@@ -509,19 +512,19 @@ class DefaultValuesSeeder extends Seeder
          */
 
         $users = SettingGroup::create([
-            'key' => 'system.users',
+            'key' => 'rhobooru.users',
             'name' => 'Users',
             'description' => 'Settings related to user accounts.',
         ]);
 
         $media = SettingGroup::create([
-            'key' => 'system.media',
+            'key' => 'rhobooru.media',
             'name' => 'Media',
             'description' => 'Settings related to processing of uploaded media.',
         ]);
 
             $images = SettingGroup::create([
-                'key' => 'system.media.images',
+                'key' => 'rhobooru.media.images',
                 'name' => 'Images',
                 'description' => 'Settings related to processing of uploaded images.<br><br>
                 See the `avatar` section for avatar-related settings.<br><br>
@@ -530,14 +533,14 @@ class DefaultValuesSeeder extends Seeder
             ]);
 
                 $originals = SettingGroup::create([
-                    'key' => 'system.media.images.originals',
+                    'key' => 'rhobooru.media.images.originals',
                     'name' => 'Originals',
                     'description' => 'Original files are the unmodified uploads.',
                     'setting_group_id' => $images->id,
                 ]);
 
                 $thumbnails = SettingGroup::create([
-                    'key' => 'system.media.images.thumbnails',
+                    'key' => 'rhobooru.media.images.thumbnails',
                     'name' => 'Thumbnails',
                     'description' => 'Thumbnails are the images shown on the record listing pages.<br>
                     eg. main search, folder views, tag pages',
@@ -545,7 +548,7 @@ class DefaultValuesSeeder extends Seeder
                 ]);
 
                 $previews = SettingGroup::create([
-                    'key' => 'system.media.images.previews',
+                    'key' => 'rhobooru.media.images.previews',
                     'name' => 'Previews',
                     'description' => 'Previews are reasonably-sized versions of images that save bandwidth without much loss in quality.<br>
                     eg. record pages',
@@ -553,7 +556,7 @@ class DefaultValuesSeeder extends Seeder
                 ]);
 
             $videos = SettingGroup::create([
-                'key' => 'system.media.videos',
+                'key' => 'rhobooru.media.videos',
                 'name' => 'Videos',
                 'description' => 'Settings related to processing of uploaded videos.<br><br>
                 Acceptable video formats are tagged in the `media_formats` table.',
@@ -659,10 +662,12 @@ class DefaultValuesSeeder extends Seeder
             ]);
     }
 
-    public function seedSystemSettings()
+    public function seedSystemSettingDefintions()
     {
+        $groups = SettingGroup::all();
+
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.users')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.users')->first()->id,
             'system_setting' => true,
             'key' => 'anonymous_user_id',
             'name' => 'Anonymous User',
@@ -677,7 +682,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'staging_path',
             'name' => 'Staging Path',
@@ -687,7 +692,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'determine_if_animated',
             'name' => 'Determine If Animated',
@@ -698,7 +703,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images')->first()->id,
             'system_setting' => true,
             'key' => 'max_file_size',
             'name' => 'Max File Size',
@@ -711,9 +716,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.originals')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.originals')->first()->id,
             'system_setting' => true,
-            'key' => 'original_storage_path',
+            'key' => 'storage_path',
             'name' => 'Storage Path',
             'description' => 'The path where original images will be saved.',
             'default_value' => 'uploads/images',
@@ -721,9 +726,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.thumbnails')->first()->id,
             'system_setting' => true,
-            'key' => 'thumbnail_storage_path',
+            'key' => 'storage_path',
             'name' => 'Storage Path',
             'description' => 'The path where thumbnail images will be saved.',
             'default_value' => 'uploads/thumbnails',
@@ -731,9 +736,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.thumbnails')->first()->id,
             'system_setting' => true,
-            'key' => 'thumbnail_width',
+            'key' => 'width',
             'name' => 'Width',
             'description' => 'Width, in pixels, for image-type record thumbnails.<br><br>
             Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
@@ -745,9 +750,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.thumbnails')->first()->id,
             'system_setting' => true,
-            'key' => 'thumbnail_height',
+            'key' => 'height',
             'name' => 'Height',
             'description' => 'Height, in pixels, for image-type record thumbnails.<br><br>
             Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
@@ -759,9 +764,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.thumbnails')->first()->id,
             'system_setting' => true,
-            'key' => 'thumbnail_format',
+            'key' => 'format',
             'name' => 'Format',
             'description' => 'Image format for generated thumbnails.<br><br>
             Ensure that the server has whatever gd or imagick extensions are needed to support this format.<br><br>
@@ -771,9 +776,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.thumbnails')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.thumbnails')->first()->id,
             'system_setting' => true,
-            'key' => 'thumbnail_quality',
+            'key' => 'quality',
             'name' => 'Quality',
             'description' => 'If the thumbnail format supports a quality setting, this is where it\'s set. Otherwise, this will be ignored.',
             'default_value' => 80,
@@ -784,9 +789,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.previews')->first()->id,
             'system_setting' => true,
-            'key' => 'preview_storage_path',
+            'key' => 'storage_path',
             'name' => 'Storage Path',
             'description' => 'The path where preview images will be saved.',
             'default_value' => 'uploads/previews',
@@ -794,9 +799,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.previews')->first()->id,
             'system_setting' => true,
-            'key' => 'preview_width',
+            'key' => 'width',
             'name' => 'Width',
             'description' => 'Width, in pixels, for image-type record previews.<br><br>
             Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
@@ -808,9 +813,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.previews')->first()->id,
             'system_setting' => true,
-            'key' => 'preview_height',
+            'key' => 'height',
             'name' => 'Height',
             'description' => 'Height, in pixels, for image-type record previews.<br><br>
             Images larger than this size will be scaled down to fit, keeping the original aspect ratio.<br><br>
@@ -822,9 +827,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.previews')->first()->id,
             'system_setting' => true,
-            'key' => 'preview_format',
+            'key' => 'format',
             'name' => 'Format',
             'description' => 'Image format for generated previews.<br><br>
             Ensure that the server has whatever gd or imagick extensions are needed to support this format.<br><br>
@@ -834,9 +839,9 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'system.media.images.previews')->first()->id,
+            'setting_group_id' => $groups->where('key', 'rhobooru.media.images.previews')->first()->id,
             'system_setting' => true,
-            'key' => 'preview_quality',
+            'key' => 'quality',
             'name' => 'Quality',
             'description' => 'If the preview format supports a quality setting, this is where it\'s set. Otherwise, this will be ignored.',
             'default_value' => 85,
@@ -847,14 +852,16 @@ class DefaultValuesSeeder extends Seeder
         ]);
     }
 
-    public function seedUserSettings()
+    public function seedUserSettingDefintions()
     {
+        $groups = SettingGroup::all();
+
         /**
          * Display
          */
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.display')->first()->id,
             'key' => 'utc_offset',
             'name' => 'UTC Offset',
             'description' => 'Timezone offset for diplaying dates in local time.',
@@ -865,7 +872,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.display')->first()->id,
             'key' => 'date_format',
             'name' => 'Date Format',
             'description' => 'Preferred template for dates.<br><br>
@@ -876,7 +883,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.display')->first()->id,
             'key' => 'enable_relative_dates',
             'name' => 'Enable Relative Dates',
             'description' => 'When on, things that have happened recently will be shown as `x minutes ago` or `x hours ago`. Older things will use a normal date format.',
@@ -885,7 +892,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.display')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.display')->first()->id,
             'key' => 'dark_theme',
             'name' => 'Dark Theme',
             'description' => 'Turn on for the dark theme. Turn off for the light theme.',
@@ -899,7 +906,7 @@ class DefaultValuesSeeder extends Seeder
          */
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'allow_friend_requests',
             'name' => 'Allow Friend Requests',
             'description' => 'Whether to allow other users to send you friend requests.<br><br>
@@ -909,7 +916,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'allow_dms_from_anyone',
             'name' => 'Allow DMs From Anyone',
             'description' => 'Whether to allow other users to send you direct messages.<br><br>
@@ -919,7 +926,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'hide_profile',
             'name' => 'Hide Profile',
             'description' => 'Whether to allow other users to see your profile.<br><br>
@@ -929,7 +936,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'hide_friends_list',
             'name' => 'Hide Friends List',
             'description' => 'Whether to allow other users to see your friends list.<br><br>
@@ -939,7 +946,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'hide_favorites',
             'name' => 'Hide Favorites',
             'description' => 'Whether to allow other users to see your favorites folder.<br><br>
@@ -949,7 +956,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.privacy')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.privacy')->first()->id,
             'key' => 'hide_communities',
             'name' => 'Hide Communities',
             'description' => 'Whether to allow other users to see which communities you belong to.<br><br>
@@ -964,7 +971,7 @@ class DefaultValuesSeeder extends Seeder
          */
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.moderation')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.moderation')->first()->id,
             'key' => 'hide_blocked_users',
             'name' => 'Hide Blocked Users',
             'description' => 'If on, all content posted by users on your block list will be completely hidden.<br>
@@ -979,7 +986,7 @@ class DefaultValuesSeeder extends Seeder
          */
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'record_fit',
             'name' => 'Fitting Strategy',
             'description' => 'The default way that records should be scaled when viewed.',
@@ -992,7 +999,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'record_fetching_strategy',
             'name' => 'Fetching Strategy',
             'description' => 'How the versions of a record should be presented.',
@@ -1005,7 +1012,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'warn_on_preview_download',
             'name' => 'Warn When Downloading Preview',
             'description' => 'If you should be warned when it looks like you\'re trying to download a preview instead of an original.<br><br>
@@ -1016,7 +1023,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'record_infinite_scroll',
             'name' => 'Infinite Scroll',
             'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
@@ -1025,7 +1032,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'nested_record_comments',
             'name' => 'Nested Comments',
             'description' => 'If comments below records should be shown in a threaded view based on replies.',
@@ -1034,7 +1041,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'minimum_record_comment_score',
             'name' => 'Minimum Comment Score',
             'description' => 'Comments with a score below this will be collapsed.',
@@ -1043,7 +1050,7 @@ class DefaultValuesSeeder extends Seeder
         ]);
 
         Setting::create([
-            'setting_group_id' => SettingGroup::where('key', 'user.records')->first()->id,
+            'setting_group_id' => $groups->where('key', 'user.records')->first()->id,
             'key' => 'minimum_record_score',
             'name' => 'Minimum Record Score',
             'description' => 'Records with a score below this will not show up in normal searches.<br><br>
@@ -1062,7 +1069,7 @@ class DefaultValuesSeeder extends Seeder
              */
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.forum.threads')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.forum.threads')->first()->id,
                 'key' => 'thread_infinite_scroll',
                 'name' => 'Infinite Scroll',
                 'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
@@ -1076,7 +1083,7 @@ class DefaultValuesSeeder extends Seeder
              */
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.forum.posts')->first()->id,
                 'key' => 'post_infinite_scroll',
                 'name' => 'Infinite Scroll',
                 'description' => 'Turn on to show the next page of results automatically. Turn off to use traditional page controls.',
@@ -1085,7 +1092,7 @@ class DefaultValuesSeeder extends Seeder
             ]);
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.forum.posts')->first()->id,
                 'key' => 'post_nested_view',
                 'name' => 'Nested View',
                 'description' => 'If posts should be shown in a threaded view based on replies.',
@@ -1094,7 +1101,7 @@ class DefaultValuesSeeder extends Seeder
             ]);
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.forum.posts')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.forum.posts')->first()->id,
                 'key' => 'post_minimum_score',
                 'name' => 'Minimum Score',
                 'description' => 'Posts with a score below this will be collapsed.',
@@ -1112,7 +1119,7 @@ class DefaultValuesSeeder extends Seeder
              */
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.notifications.records')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.notifications.records')->first()->id,
                 'key' => 'notifications_record_approval_email',
                 'name' => 'Approval - Email',
                 'description' => 'Receive an email when your records are approved.',
@@ -1121,13 +1128,27 @@ class DefaultValuesSeeder extends Seeder
             ]);
 
             Setting::create([
-                'setting_group_id' => SettingGroup::where('key', 'user.notifications.records')->first()->id,
+                'setting_group_id' => $groups->where('key', 'user.notifications.records')->first()->id,
                 'key' => 'notifications_record_approval_push',
                 'name' => 'Approval - Push',
                 'description' => 'Receive a push notification when your records are approved.',
                 'default_value' => false,
                 'control' => 'checkbox',
             ]);
+    }
+
+    public function seedSystemSettings()
+    {
+        $settings = Setting::where('system_setting', true)->get();
+
+        foreach ($settings as $setting) {
+            SystemSetting::create([
+                'setting_id' => $setting->id,
+                'value' => $setting->default_value,
+            ]);
+        }
+
+        SystemSetting::persistAll();
     }
 }
 
