@@ -177,7 +177,6 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\BlueprintMacroServiceProvider::class,
         App\Providers\SettingServiceProvider::class,
-
     ],
 
     /*

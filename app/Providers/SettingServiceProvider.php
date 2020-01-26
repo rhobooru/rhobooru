@@ -12,6 +12,8 @@ class SettingServiceProvider extends ServiceProvider
      * Register services.
      *
      * @return void
+     *
+     * @codeCoverageIgnore
      */
     public function register()
     {
@@ -23,11 +25,27 @@ class SettingServiceProvider extends ServiceProvider
      * Bootstrap services.
      *
      * @return void
+     *
+     * @codeCoverageIgnore
      */
     public function boot()
     {
-        if (count(Schema::getColumnListing('system_settings'))) {
-            SystemSetting::persistAll();
+        $this->loadAllSystemSettings();
+    }
+
+    /**
+     * Presists all system settings into the session
+     * config.
+     *
+     * @return void
+     */
+    public function loadAllSystemSettings()
+    {
+        // Ensure the table exists.
+        if (count(Schema::getColumnListing('system_settings')) == 0) {
+            return;
         }
+
+        SystemSetting::persistAll();
     }
 }
