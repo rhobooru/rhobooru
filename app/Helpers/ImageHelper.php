@@ -98,7 +98,7 @@ class ImageHelper
             intval(config("${config_root}.height"))
         );
 
-        if(! $image){
+        if (! $image) {
             return null;
         }
 
@@ -129,7 +129,7 @@ class ImageHelper
     ): ?\Intervention\Image\Image {
         $image = Image::make($file);
 
-        if(! $image) {
+        if (! $image) {
             throw new \Exception('Creating image failed');
         }
 

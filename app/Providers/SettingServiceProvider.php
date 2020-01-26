@@ -42,7 +42,7 @@ class SettingServiceProvider extends ServiceProvider
     public function loadAllSystemSettings()
     {
         // Ensure the table exists.
-        if (count(Schema::getColumnListing('system_settings')) == 0) {
+        if (count(Schema::getColumnListing('system_settings')) === 0) {
             return;
         }
 
