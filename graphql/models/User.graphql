@@ -6,11 +6,12 @@ type User {
     system_account: Boolean!
     created_at: DateTime!
     updated_at: DateTime!
-    profile: Profile @hasOne @lazyLoad(relations: ["profile"])
+    email: String
+    bio: String
     permissions: [Permission] @hasMany @lazyLoad(relations: ["permissions"])
     roles: [Role] @hasMany @lazyLoad(relations: ["roles"])
     all_permissions: [Permission]
-    
+
     records: [Record!] @hasMany(type: "paginator", defaultCount: 10) @lazyLoad(relations: ["records"])
     records_count: Int! @count(relation: "records")
 
@@ -18,20 +19,19 @@ type User {
     favorites_folder: Folder @hasOne(relation: "favoritesFolder") @lazyLoad(relations: ["favoritesFolder"])
 }
 
-input UpdateUserInput {
-    id: ID!
-    username: String!
-    profile: UpdateProfileBelongsTo
-}
-
 extend type Query{
     users: [User!]! @paginate(defaultCount: 10) @softDeletes
     user(id: ID! @eq): User @find
 }
 
-extend type Mutation {    
+extend type Mutation {
     # Update
-    updateUser(input: UpdateUserInput! @spread): User @update
+    updateUser(
+        id: ID!
+        username: String!
+        email: String
+        bio: String
+    ): User @update
 
     # Soft Delete
     deleteUser(id: ID!): User @delete

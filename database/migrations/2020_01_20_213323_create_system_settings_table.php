@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSystemSettingTable extends Migration
+class CreateSystemSettingsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateSystemSettingTable extends Migration
      */
     public function up()
     {
-        Schema::create('system_setting', function (Blueprint $table) {
+        Schema::create('system_settings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->timestamps();
 
@@ -35,6 +35,6 @@ class CreateSystemSettingTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('system_setting');
+        Schema::dropIfExists('system_settings');
     }
 }

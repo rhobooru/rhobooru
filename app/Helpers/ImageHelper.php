@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Record;
 use Intervention\Image\Facades\Image;
 use Jenssegers\ImageHash\ImageHash;
 use Jenssegers\ImageHash\Implementations\DifferenceHash;
@@ -36,13 +37,13 @@ class ImageHelper
         $hash = $hasher->hash($file);
 
         // MariaDB is a picky bitch about how binaries
-        // are stored and used, so convert hex to bigint.
+        // are stored and used, so convert hex to dec.
         return base_convert($hash, 16, 10);
     }
 
     /**
      * Generates a thumbnail for the given image according to
-     * config/rhobooru.php settings.
+     * the system settings.
      *
      * @param string $input_file
      *
@@ -50,33 +51,16 @@ class ImageHelper
      */
     public static function makeThumbnail(string $input_file): ?string
     {
-        $config_root = 'rhobooru.media.images.thumbnails';
-
-        $path_info = pathinfo($input_file);
-
-        $width = config("${config_root}.width");
-        $height = config("${config_root}.height");
-
-        $image = self::fitImage($input_file, $width, $height);
-
-        if (! $image) {
-            return null;
-        }
-
-        $thumbnail_path = $path_info['dirname'] . '/'
-            . $path_info['filename'] . '_thumbnail.'
-            . config("${config_root}.format");
-
-        $thumbnail_quality = config("${config_root}.format_quality");
-
-        $image->save($thumbnail_path, $thumbnail_quality);
-
-        return $thumbnail_path;
+        return self::makeVersion(
+            $input_file,
+            'rhobooru.media.images.thumbnails',
+            'generateThumbnailFilename'
+        );
     }
 
     /**
      * Generates a preview for the given image acoording to
-     * config/rhobooru.php settings.
+     * the system settings.
      *
      * @param string $input_file
      *
@@ -84,28 +68,48 @@ class ImageHelper
      */
     public static function makePreview(string $input_file): ?string
     {
-        $config_root = 'rhobooru.media.images.previews';
+        return self::makeVersion(
+            $input_file,
+            'rhobooru.media.images.previews',
+            'generatePreviewFilename'
+        );
+    }
 
+    /**
+     * Generates a version of the given image acoording to
+     * the system settings.
+     *
+     * @param string $input_file
+     * @param string $config_root
+     * @param string $filename_func
+     *
+     * @return string|null Path to the version.
+     */
+    public static function makeVersion(
+        string $input_file,
+        string $config_root,
+        string $filename_func
+    ): ?string {
         $path_info = pathinfo($input_file);
 
-        $width = config("${config_root}.width");
-        $height = config("${config_root}.height");
+        $image = self::fitImage(
+            $input_file,
+            intval(config("${config_root}.width")),
+            intval(config("${config_root}.height"))
+        );
 
-        $image = self::fitImage($input_file, $width, $height);
-
-        if (! $image) {
+        if(! $image){
             return null;
         }
 
-        $preview_path = $path_info['dirname'] . '/'
-            . $path_info['filename'] . '_preview.'
-            . config("${config_root}.format");
+        $path = "{$path_info['dirname']}/" . call_user_func(
+            [Record::class, $filename_func],
+            $path_info['filename']
+        );
 
-        $preview_quality = config("${config_root}.format_quality");
+        $image->save($path, intval(config("${config_root}.quality")));
 
-        $image->save($preview_path, $preview_quality);
-
-        return $preview_path;
+        return $path;
     }
 
     /**
@@ -124,6 +128,10 @@ class ImageHelper
         int $max_height
     ): ?\Intervention\Image\Image {
         $image = Image::make($file);
+
+        if(! $image) {
+            throw new \Exception('Creating image failed');
+        }
 
         if ($image->width() <= $max_width
             && $image->height() <= $max_height) {

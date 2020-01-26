@@ -20,6 +20,8 @@ class BlueprintMacroServiceProvider extends ServiceProvider
      * Bootstrap services.
      *
      * @return void
+     *
+     * @codeCoverageIgnore
      */
     public function boot()
     {
