@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\MediaNotUploadedException;
 use App\Exceptions\NotAuthenticatedException;
 use App\Helpers\ImageHelper;
 use App\Models\Traits\UserAudits;
@@ -181,6 +182,7 @@ class Record extends Model
     public function uploadFile(\Illuminate\Http\UploadedFile $file): string
     {
         // Make sure the user is logged in.
+        // TODO: This should be some middleware to auth as the anonymous user?
         if (! Auth::check()) {
             throw new NotAuthenticatedException();
         }
@@ -194,13 +196,18 @@ class Record extends Model
 
         // Build the paths and filenames.
         $filename = $this->md5;
-        $thumbnail_name = "${filename}_thumbnail." . config("${config_root}.thumbnails.format");
-        $preview_name = "${filename}_preview." . config("${config_root}.previews.format");
+        $thumbnail_name = "${filename}_thumbnail."
+            . config("${config_root}.thumbnails.format");
+        $preview_name = "${filename}_preview."
+            . config("${config_root}.previews.format");
 
         $staging_path = config("${config_root}.staging_path");
-        $final_path = config("${config_root}.originals.storage_path") . '/' . $this->hashFolder;
-        $thumbnail_path = config("${config_root}.thumbnails.storage_path") . '/' . $this->hashFolder;
-        $preview_path = config("${config_root}.previews.storage_path") . '/' . $this->hashFolder;
+        $final_path = config("${config_root}.originals.storage_path")
+            . '/' . $this->hashFolder;
+        $thumbnail_path = config("${config_root}.thumbnails.storage_path")
+            . '/' . $this->hashFolder;
+        $preview_path = config("${config_root}.previews.storage_path")
+            . '/' . $this->hashFolder;
 
         $full_staging_path = "${staging_path}/${filename}";
         $full_staging_thumbnail_path = "${staging_path}/${thumbnail_name}";
@@ -257,18 +264,24 @@ class Record extends Model
         if (! $this->verifyMD5(Storage::path($full_staging_path))) {
             Storage::delete($full_staging_path);
 
-            throw new \Exception('MD5 mismatch: File corrupted in transit to server.');
+            throw new \Exception(
+                'MD5 mismatch: File corrupted in transit to server.'
+            );
         }
 
         // Calculate the pHash of the saved file.
         $pHash = ImageHelper::imageToPHash(Storage::path($full_staging_path));
 
-        $generated_thumbnail_path = ImageHelper::makeThumbnail(Storage::path($full_staging_path));
+        $generated_thumbnail_path = ImageHelper::makeThumbnail(
+            Storage::path($full_staging_path)
+        );
         if ($generated_thumbnail_path !== null) {
             Storage::move($full_staging_thumbnail_path, $full_thumbnail_path);
         }
 
-        $generated_preview_path = ImageHelper::makePreview(Storage::path($full_staging_path));
+        $generated_preview_path = ImageHelper::makePreview(Storage::path(
+            $full_staging_path
+        ));
         if ($generated_preview_path !== null) {
             Storage::move($full_staging_preview_path, $full_preview_path);
         }
@@ -281,7 +294,9 @@ class Record extends Model
         if (! $this->verifyMD5(Storage::path($full_final_path))) {
             Storage::delete($full_final_path);
 
-            throw new \Exception('MD5 mismatch: File corrupted in transit to storage.');
+            throw new \Exception(
+                'MD5 mismatch: File corrupted in transit to storage.'
+            );
         }
 
         // Update the record.
@@ -324,8 +339,10 @@ class Record extends Model
      *
      * @return string|null
      */
-    public static function generateFilename(string $base, string $extension): ?string
-    {
+    public static function generateFilename(
+        string $base,
+        string $extension
+    ): ?string {
         if ($base === null) {
             return null;
         }
@@ -404,6 +421,10 @@ class Record extends Model
      */
     public function getImageAttribute(): string
     {
+        if (! $this->upload_complete) {
+            throw new MediaNotUploadedException;
+        }
+
         return $this->buildAssetPath('original');
     }
 
@@ -414,6 +435,10 @@ class Record extends Model
      */
     public function getThumbnailAttribute(): string
     {
+        if (! $this->upload_complete) {
+            throw new MediaNotUploadedException;
+        }
+
         return $this->buildAssetPath('thumbnail');
     }
 
@@ -424,6 +449,10 @@ class Record extends Model
      */
     public function getPreviewAttribute(): ?string
     {
+        if (! $this->upload_complete) {
+            throw new MediaNotUploadedException;
+        }
+
         return $this->buildAssetPath('preview', true);
     }
 
@@ -439,24 +468,20 @@ class Record extends Model
         string $type,
         bool $check_exists = false
     ): ?string {
-        if (! $this->upload_complete) {
-            throw new \Exception('Record is not uploaded yet');
-        }
+        $path = config("rhobooru.media.images.${type}s.storage_path")
+            . "/{$this->hashFolder}/";
 
         switch ($type) {
             case 'thumbnail':
-                $path = config("rhobooru.media.images.${type}s.storage_path")
-                    . "/{$this->hashFolder}/{$this->thumbnail_filename}";
+                $path .= $this->thumbnail_filename;
                 break;
 
             case 'preview':
-                $path = config("rhobooru.media.images.${type}s.storage_path")
-                    . "/{$this->hashFolder}/{$this->preview_filename}";
+                $path .= $this->preview_filename;
                 break;
 
             case 'original':
-                $path = config("rhobooru.media.images.${type}s.storage_path")
-                    . "/{$this->hashFolder}/{$this->filename}";
+                $path .= $this->filename;
         }
 
         if ($check_exists && ! Storage::exists($path)) {

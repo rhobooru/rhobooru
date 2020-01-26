@@ -24,13 +24,13 @@ class RemoveTagFromRecord
         $record = Record::findOrFail($record_id);
 
         if (! $record->tags()->where('id', $tag_id)->exists()) {
-            throw new \Exception("Tag (${tag_id}) does not exist for Record (${record_id}).");
+            throw new \Exception(
+                "Tag (${tag_id}) does not exist for Record (${record_id})."
+            );
         }
 
         $record->tags()->detach($tag);
 
-        $record->refresh();
-
-        return $record;
+        return $record->fresh();
     }
 }

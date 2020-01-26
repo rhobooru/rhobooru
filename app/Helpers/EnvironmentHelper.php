@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Helpers\HumanReadableHelper as Human;
+
 class EnvironmentHelper
 {
     /**
@@ -19,8 +21,8 @@ class EnvironmentHelper
 
         $str .= "\n"; // In case the key is the last line without \n
         $key_position = strpos($str, "{$key}=");
-        $end_of_line_position = strpos($str, PHP_EOL, $key_position);
-        $old_line = substr($str, $key_position, $end_of_line_position - $key_position);
+        $eol_pos = strpos($str, PHP_EOL, $key_position);
+        $old_line = substr($str, $key_position, $eol_pos - $key_position);
         $str = str_replace($old_line, "{$key}={$value}", $str);
         $str = substr($str, 0, -1);
 
@@ -37,8 +39,8 @@ class EnvironmentHelper
      */
     public static function getMaxUploadSize()
     {
-        return min(HumanReadableHelper::toBytes(ini_get('upload_max_filesize')),
-            HumanReadableHelper::toBytes(ini_get('post_max_size')));
+        return min(Human::toBytes(ini_get('upload_max_filesize')),
+        Human::toBytes(ini_get('post_max_size')));
     }
 
     /**
@@ -49,22 +51,25 @@ class EnvironmentHelper
      */
     public static function verifyMaxUploadSize(): bool
     {
-        $max_post_size;
-        $max_upload_size;
-
         try {
-            $max_post_size = HumanReadableHelper::toBytes(ini_get('post_max_size'));
-            $max_upload_size = HumanReadableHelper::toBytes(ini_get('upload_max_filesize'));
+            $max_post = Human::toBytes(ini_get('post_max_size'));
+            $max_upload = Human::toBytes(ini_get('upload_max_filesize'));
         } catch (\Exception $exception) {
-            throw new \Exception('Could not read PHP configuration', 0, $exception);
+            throw new \Exception('Could not read PHP configuration');
         }
 
-        if ($max_post_size < $max_upload_size) {
-            throw new \Exception('`upload_max_filesize` is set higher than `post_max_size`. This is not allowed.');
+        if ($max_post < $max_upload) {
+            throw new \Exception(
+                '`upload_max_filesize` is set higher than `post_max_size`.' .
+                ' This is not allowed.'
+            );
         }
 
-        if ($max_upload_size < 10 * 1024 * 1024) {
-            throw new \Exception('`upload_max_filesize` is set below 10M. This may prevent many files from being uploaded.');
+        if ($max_upload < 10 * 1024 * 1024) {
+            throw new \Exception(
+                '`upload_max_filesize` is set below 10M.' .
+                ' This may prevent many files from being uploaded.'
+            );
         }
 
         return true;

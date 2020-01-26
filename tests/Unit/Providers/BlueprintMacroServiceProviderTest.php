@@ -24,7 +24,9 @@ class BlueprintMacroServiceProviderTest extends TestCase
     {
         $this->application_mock = Mockery::mock(Application::class);
 
-        $this->service_provider = new BlueprintMacroServiceProvider($this->application_mock);
+        $this->service_provider = new BlueprintMacroServiceProvider(
+            $this->application_mock
+        );
 
         parent::setUp();
     }
@@ -43,9 +45,12 @@ class BlueprintMacroServiceProviderTest extends TestCase
 
         $table->timestampUsers();
 
-        $this->assertEquals(['created_by_user_id', 'updated_by_user_id'], array_map(function($element) {
-            return $element->getAttributes()["name"];
-        }, $table->getColumns()));
+        $this->assertEquals(
+            ['created_by_user_id', 'updated_by_user_id'],
+            array_map(function($element) {
+                return $element->getAttributes()["name"];
+            }, $table->getColumns())
+        );
     }
 
     /**
@@ -62,9 +67,12 @@ class BlueprintMacroServiceProviderTest extends TestCase
 
         $table->timestampUsers(true);
 
-        $this->assertEquals(['created_by_user_id', 'updated_by_user_id'], array_map(function($element) {
-            return $element->getAttributes()["name"];
-        }, $table->getColumns()));
+        $this->assertEquals(
+            ['created_by_user_id', 'updated_by_user_id'],
+            array_map(function($element) {
+                return $element->getAttributes()["name"];
+            }, $table->getColumns())
+        );
 
         $this->assertEquals([true, true], array_map(function($element) {
             return $element->getAttributes()["nullable"];
@@ -85,9 +93,12 @@ class BlueprintMacroServiceProviderTest extends TestCase
 
         $table->softDeletesUser();
 
-        $this->assertEquals(['deleted_by_user_id'], array_map(function($element) {
-            return $element->getAttributes()["name"];
-        }, $table->getColumns()));
+        $this->assertEquals(
+            ['deleted_by_user_id'],
+            array_map(function($element) {
+                return $element->getAttributes()["name"];
+            }, $table->getColumns())
+        );
 
         $this->assertEquals([true], array_map(function($element) {
             return $element->getAttributes()["nullable"];

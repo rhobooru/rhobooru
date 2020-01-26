@@ -9,8 +9,11 @@ use SearchQuery;
 
 class SearchService
 {
-    public static function searchRecords(string $raw_query, int $page, int $per_page): Collection
-    {
+    public static function searchRecords(
+        string $raw_query,
+        int $page,
+        int $per_page
+    ): Collection {
         $tag_ids = self::getTagIds($raw_query);
 
         $record_ids = self::getRecordIds($tag_ids, $page, $per_page);
